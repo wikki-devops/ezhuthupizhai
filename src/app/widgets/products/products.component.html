@@ -1,0 +1,186 @@
+<section class="content-inner" style="background-color: rgb(255, 237, 212);">
+    <div class="container">
+        <div class="row justify-content-md-between align-items-start mb-5">
+            <div class="col-lg-5 col-md-12">
+                <div class="section-head style-1 m-b30  wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="left-content">
+                        <h2 class="title">Most popular products</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7 col-md-12">
+                <div class="site-filters clearfix style-1 align-items-center wow fadeInUp ms-lg-auto"
+                    data-wow-delay="0.4s">
+                    <ul class="filters" data-bs-toggle="buttons">
+                        <li class="btn" *ngFor="let category of categories" [class.active]="activeFilter === category">
+                            <input type="radio">
+                            <a href="javascript:void(0);" (click)="filterProducts(category)">{{ category | uppercase
+                                }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix">
+            <ul id="masonry" class="row g-xl-4 g-3">
+                <li class="card-container col-6 col-xl-4 col-lg-4 col-md-4 col-sm-6 wow fadeInUp"
+                    *ngFor="let product of filteredProducts" [attr.data-wow-delay]="'0.6s'">
+                    <div class="shop-card">
+                        <div class="dz-media">
+                            <img [src]="product.thumbnail_image || 'https://placehold.co/500x500'" [alt]="product.name">
+                            <div class="shop-meta">
+                                <a href="javascript:void(0);" class="btn btn-secondary btn-md btn-rounded"
+                                    data-bs-toggle="modal" [attr.data-bs-target]="'#quickViewModal_' + product.id">
+                                    <i class="fa-solid fa-eye d-md-none d-block"></i>
+                                    <span class="d-md-block d-none">Quick View</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="dz-info">
+                            <div class="dz-content">
+                                <h5 class="title w-100">
+                                    {{ product.name }}
+                                </h5>
+                            </div>
+                            <div class="meta-content">
+                                <span class="price">
+                                    &#8377; {{ product.special_price }}
+                                    <del *ngIf="product.mrp_price !== product.special_price">&#8377;
+                                        {{product.mrp_price}}</del>
+                                </span>
+                            </div>
+                            <div class="add-cart-button">
+                                <a href="shop-cart.html" class="btn btn-secondary btn-md btn-icon">
+                                    <i class="icon feather icon-shopping-cart d-md-none d-block"></i>
+                                    <span class="d-md-block d-none">Add to cart</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="product-tag">
+                            <span class="badge">{{ product.tag }}</span>
+                        </div>
+                    </div>
+                    <div class="modal quick-view-modal fade" [id]="'quickViewModal_' + product.id" tabindex="-1"
+                        aria-hidden="true" #quickViewModal>
+                        <div class="modal-dialog modal-dialog-centered" style="width: 100%;">
+                            <div class="modal-content">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    <i class="icon feather icon-x"></i>
+                                </button>
+                                <div class="modal-body">
+                                    <div class="row g-xl-4 g-3">
+                                        <div class="col-xl-7 col-md-7">
+                                            <img [src]="product.thumbnail_image || 'https://placehold.co/500x500'"
+                                                [alt]="product.name">
+                                        </div>
+                                        <div class="col-xl-5 col-md-5">
+                                            <div
+                                                class="dz-product-detail style-2 p-1 pe-4 mb-0 h-100 align-content-center">
+                                                <div class="dz-content">
+                                                    <div class="dz-content-footer">
+                                                        <div class="dz-content-start">
+                                                            <span class="badge bg-secondary mb-2">
+                                                                {{ product.tag | uppercase }}
+                                                            </span>
+                                                            <h4 class="title mb-1"><a href="javascript:void(0);">{{
+                                                                    product.name }}</a></h4>
+                                                            <div class="review-num">
+                                                                <ul class="dz-rating me-2">
+                                                                    <ng-container
+                                                                        *ngIf="product.reviews && product.reviews.length > 0; else noReviews">
+                                                                        <li *ngFor="let filled of getStarArray(calculateProductAverageRating(product.reviews))"
+                                                                            [class.star-fill]="filled">
+                                                                            <i class="flaticon-star-1"></i>
+                                                                        </li>
+                                                                    </ng-container>
+                                                                    <ng-template #noReviews>
+                                                                        <li *ngFor="let i of [1,2,3,4,5]"><i
+                                                                                class="flaticon-star-1"></i></li>
+                                                                    </ng-template>
+                                                                </ul>
+                                                                <span class="text-secondary me-2">
+                                                                    {{ product.reviews && product.reviews.length > 0 ?
+                                                                    (calculateProductAverageRating(product.reviews) |
+                                                                    number:'1.1-1') + ' Rating' : 'No Rating' }}
+                                                                </span>
+                                                                <a href="javascript:void(0);">({{ product.reviews ?
+                                                                    product.reviews.length : 0 }} customer reviews)</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="para-text">
+                                                        {{ product.short_description.length > 150 ? (product.short_description |
+                                                        slice:0:150) + '...' : product.short_description }}
+                                                    </p>
+                                                    <div class="dz-info mb-0">
+                                                        <ul>
+                                                            <li><strong>SKU:</strong></li>
+                                                            <li>PRT{{ product.id }}E63A</li>
+                                                        </ul>
+                                                        <ul>
+                                                            <li><strong>Category:</strong></li>
+                                                            <li>PRT{{ product.categories }}E63A</li>
+                                                        </ul>
+                                                        <ul>
+                                                            <li><strong>Tags:</strong></li>
+                                                            <li>{{ product.tag }}</li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="meta-content m-b20 d-flex align-items-end">
+                                                        <div class="me-3">
+                                                            <span class="form-label">Price</span>
+                                                            <span class="price">
+                                                                &#8377;{{ product.special_price }}
+                                                                <del
+                                                                    *ngIf="product.mrp_price !== product.special_price">&#8377;{{
+                                                                    product.mrp_price }}</del>
+                                                            </span>
+                                                        </div>
+                                                        <div class="btn-quantity light me-0">
+                                                            <label class="form-label">Quantity</label>
+                                                            <div class="input-group bootstrap-touchspin"><span
+                                                                    class="input-group-addon bootstrap-touchspin-prefix"
+                                                                    style="display: none;"></span><input type="text"
+                                                                    value="1" name="demo_vertical2" class="form-control"
+                                                                    style="display: block;"><span
+                                                                    class="input-group-addon bootstrap-touchspin-postfix"
+                                                                    style="display: none;"></span><span
+                                                                    class="input-group-btn-vertical"><button
+                                                                        class="btn btn-default bootstrap-touchspin-up"
+                                                                        type="button"><i
+                                                                            class="fa-solid fa-plus"></i></button><button
+                                                                        class="btn btn-default bootstrap-touchspin-down"
+                                                                        type="button"><i
+                                                                            class="fa-solid fa-minus"></i></button></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="icon-bx-wraper style-4 m-b10">
+                                                        <div class="icon-bx">
+                                                            <img src="assets/images/info.png" style="width: 80px;" alt="/">
+                                                        </div>
+                                                        <div class="icon-content">
+                                                            <h6 class="dz-title text-red">Important Notice</h6>
+                                                            <p>
+                                                                Delivery may be delayed on weekends or peak times.
+                                                                Contact support for any queries.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" cart-btn">
+                                                        <a href="shop-cart.html"
+                                                            class="btn btn-secondary text-uppercase">Add To Cart</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>

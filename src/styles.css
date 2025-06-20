@@ -1,1 +1,54 @@
 /* You can add global styles to this file, and also import other style files */
+.card-container {
+    margin-bottom: 50px;
+}
+
+.shop-card .dz-content {
+    padding: 6px;
+}
+
+.meta-content {
+    margin: 0px;
+    padding: 6px;
+}
+
+.shop-card .price {
+    font-size: 24px;
+    font-family: "Arial", sans-serif;
+    font-weight: normal;
+}
+
+.shop-card .price del {
+    font-size: 13px;
+    color: red;
+}
+
+.add-cart-button {
+    padding: 6px;
+    display: flex;
+}
+
+.dz-product-detail .dz-info {
+    margin-bottom: 40px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.about-style4 {
+    padding-top: 10px;
+}
+
+.main-slider-wrapper .star-1,
+.main-slider-wrapper .star-2 {
+    width: 105px;
+}
+
+.quick-view-modal .dz-product-detail.style-2 .meta-content {
+    margin-bottom: 10px !important;
+}
+
+.icon-bx-wraper.style-4 {
+    padding: 10px;
+}
