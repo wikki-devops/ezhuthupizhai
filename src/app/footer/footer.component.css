@@ -1,0 +1,6 @@
+.dz-social-icon.style-1 li {
+    border-radius: 10px;
+}
+.dz-social-icon li:hover i{
+    color: #fff;
+}

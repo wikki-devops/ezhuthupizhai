@@ -1,0 +1,220 @@
+.check-tbl thead th {
+    padding: 0px;
+    text-align: center;
+}
+.cart-detail .save-text {
+    margin-bottom: 20px;
+}
+td.price {
+    text-align: end !important;
+}
+
+.coupon-card {
+    box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.coupon-card.applied {
+    background-color: hsl(134deg 61% 41% / 30%); /* Bootstrap success green */
+    color: #000;
+}
+
+.coupon-card.ineligible {
+    background-color: #f8f9fa; /* Light grey background */
+    color: #6c757d; /* Muted grey text */
+    border: 1px dotted #adb5bd; /* Dotted border for ineligible */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Ensure applied state maintains white text */
+.coupon-card.applied .content h1,
+.coupon-card.applied .content h2,
+.coupon-card.applied .content p,
+.coupon-card.applied .copy-button input {
+    color: #000 !important; /* Force white text */
+}
+.coupon-card.applied .vertical {
+    border-left-color: #000 !important; /* White dotted line */
+}
+.coupon-card.applied .copy-button {
+    border-color: #000 !important; /* White border for input */
+}
+.coupon-card.applied .copy-button button {
+    background-color: #1e7e34 !important; /* Darker green for applied button */
+    color: #000 !important;
+}
+
+/* Ensure ineligible state maintains muted text/colors */
+.coupon-card.ineligible .content h1,
+.coupon-card.ineligible .content h2,
+.coupon-card.ineligible .content p {
+    color: #6c757d !important; /* Muted grey text */
+}
+.coupon-card.ineligible .vertical {
+    border-left-color: #adb5bd !important; /* Muted dotted line */
+}
+.coupon-card.ineligible .copy-button {
+    border-color: #e9ecef !important; /* Lighter grey border for input */
+}
+.coupon-card.ineligible .copy-button input {
+    color: #6c757d !important; /* Muted text for input */
+}
+.coupon-card.ineligible .copy-button button {
+    background-color: #dee2e6 !important; /* Lighter grey button */
+    color: #6c757d !important;
+    cursor: not-allowed;
+}
+
+
+/* Common styles for main and copy-button sections */
+.main,
+.copy-button {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 10px;
+    align-items: center;
+}
+
+/* Circles on the sides of the card - adjust background-color based on state */
+.coupon-card::after,
+.coupon-card::before {
+    position: absolute;
+    content: "";
+    height: 40px;
+    border-radius: 40px;
+    z-index: 1;
+    top: 70px;
+    background-color: #dc143c; /* Default red as per your reference */
+    width: 40px;
+}
+
+.coupon-card::after {
+    right: -20px;
+}
+
+.coupon-card::before {
+    left: -20px;
+}
+
+/* State-specific background for the circles */
+.coupon-card.applied::after,
+.coupon-card.applied::before {
+    background-color: #28a745; /* Green for applied state */
+}
+
+.coupon-card.ineligible::after,
+.coupon-card.ineligible::before {
+    background-color: #f8f9fa; /* Light grey for ineligible state */
+}
+
+/* Company Image */
+.co-img img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain; /* Ensures image fits without distortion */
+}
+
+/* Vertical Dotted Line */
+.vertical {
+    border-left: 1px dotted black; /* Default black */
+    height: 100px;
+    position: absolute;
+    left: 40%; /* Adjust position as needed */
+}
+
+/* Content Area */
+.content h1 {
+    font-size: 35px;
+    margin-left: -20px;
+    color: #565656;
+}
+
+.content h1 span {
+    font-size: 18px;
+}
+
+.content h2 {
+    font-size: 18px;
+    margin-left: -20px;
+    color: #565656;
+    text-transform: uppercase;
+}
+
+.content p {
+    font-size: 16px;
+    color: #696969;
+    margin-left: -20px;
+}
+
+/* Copy Button Section */
+.copy-button {
+    height: 45px;
+    border-radius: 4px;
+    padding: 0px;
+    border: 1px solid #e1e1e1;
+}
+
+.copy-button input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    background-color: transparent;
+    padding-left: 10px;
+}
+
+.copy-button button {
+    padding: 5px 20px;
+    background-color: #dc143c; /* Default red for button */
+    color: #fff;
+    border: 1px solid transparent;
+    border-radius: 3px; /* Match input border-radius */
+    cursor: pointer;
+}
+
+/* Disable button specific styles */
+.copy-button button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #dee2e6; /* Lighter grey for disabled button */
+    color: #6c757d; /* Muted text for disabled button */
+}
+
+
+/* Media Queries for Responsiveness (adjust breakpoints as needed) */
+@media (max-width: 768px) {
+    .coupon-card-wrapper {
+        width: 100%; /* Full width on smaller screens */
+    }
+    .vertical {
+        left: 30%; /* Adjust for smaller screens if necessary */
+    }
+    .content h1 {
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .coupon-card {
+        height: auto; /* Allow height to adjust */
+        min-height: 150px;
+    }
+    .main {
+        flex-direction: column;
+        text-align: center;
+    }
+    .vertical {
+        display: none; /* Hide vertical line on very small screens */
+    }
+    .content h1, .content h2, .content p {
+        margin-left: 0;
+    }
+    .co-img {
+        margin-bottom: 10px;
+    }
+}

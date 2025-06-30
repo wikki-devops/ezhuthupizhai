@@ -1,0 +1,391 @@
+<div class="page-content bg-light">
+    <div class="dz-bnr-inr bg-secondary dz-bnr-inr-md"
+        style="background-image: url(https://ezhuthupizhai.in/wp-content/uploads/2024/03/Banner_3-scaled-1.jpg);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="dz-bnr-inr-entry text-start">
+                        <h1 class="text-white">Checkout</h1>
+                        <nav aria-label="breadcrumb" class="breadcrumb-row">
+                            <ul class="breadcrumb text-white">
+                                <li class="breadcrumb-item"><a href="/home" class="text-white"> Home</a></li>
+                                <li class="breadcrumb-item text-white">Checkout</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-inner-1">
+        <div class="container">
+            <div class="row shop-checkout">
+                <div class="col-xl-8">
+                    <div class="login m-b25" *ngIf="!otpVerified">
+                        <h4 class="title m-b15">Login or Create Account (Optional)</h4>
+                        <form [formGroup]="loginForm" class="row order-detail p-3">
+                            <div class="col-md-6">
+                                <div class="form-group m-b25">
+                                    <label class="label-title">Email *</label>
+                                    <input type="email" formControlName="email" class="form-control"
+                                        placeholder="Enter Email" />
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2"
+                                        (click)="sendOtp()" [disabled]="loginForm.get('email')?.invalid">Send
+                                        OTP</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6" *ngIf="otpSent">
+                                <div class="form-group m-b25">
+                                    <label class="label-title">Enter OTP *</label>
+                                    <input type="tel" formControlName="otp" class="form-control" />
+                                    <button type="button" class="btn btn-sm btn-primary mt-2"
+                                        (click)="verifyOtpAndFetchAddresses()" [disabled]="loginForm.get('otp')?.invalid">Verify
+                                        OTP</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="login-status m-b25" *ngIf="otpVerified">
+                        <h4 class="title m-b15">Logged In <span class="text-success">({{ loginEmail }})</span></h4>
+                        <p>You are logged in. Your saved addresses are available below.</p>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="logout()">Logout</button>
+                    </div>
+
+
+                    <div class="checkout m-b25">
+                        <h4 class="title m-b15">Delivery Details</h4>
+                        <div class="saved-addresses-container"
+                            *ngIf="otpVerified && userAddresses.length > 0 && activeAddressMode === 'saved'">
+                            <div *ngFor="let address of userAddresses" class="address-card"
+                                [class.selected-address]="selectedAddressId === address.id"
+                                (click)="selectSavedAddress(address.id)">
+
+                                <div class="account-address-box">
+                                    <h6 class="mb-3">{{ address.first_name }} {{ address.last_name }}</h6>
+                                    <ul>
+                                        <li>{{ address.address1 }}</li>
+                                        <li *ngIf="address.address2">{{ address.address2 }}</li>
+                                        <li>{{ address.city }}, {{ address.state }} - {{ address.zip_code }}</li>
+                                        <li>{{ address.country }}</li>
+                                        <li>Mo. {{ address.phone }}</li>
+                                        <li>{{ address.email }}</li>
+                                    </ul>
+                                </div>
+                                <div class="account-address-bottom">
+                                    <a href="javascript:void(0);" class="d-block me-3"
+                                       (click)="editAddress(address); $event.stopPropagation()">
+                                        <i class="fa-solid fa-pen me-2"></i>Edit
+                                    </a>
+                                    <a href="javascript:void(0);" class="d-block me-3"
+                                       (click)="removeAddress(address.id); $event.stopPropagation()">
+                                        <i class="fa-solid fa-trash-can me-2"></i>Remove
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <form [formGroup]="checkoutForm" class="row order-detail p-3">
+                            <ng-container
+                                *ngIf="activeAddressMode === 'new' || !otpVerified || userAddresses.length === 0">
+                                <div class="col-md-6">
+                                    <div class="form-group m-b25">
+                                        <label class="label-title">First Name *</label>
+                                        <input type="text" formControlName="firstName" class="form-control" />
+                                        <div *ngIf="checkoutForm.get('firstName')?.invalid && (checkoutForm.get('firstName')?.dirty || checkoutForm.get('firstName')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('firstName')?.errors?.['required']">First Name is required.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group m-b25">
+                                        <label class="label-title">Last Name</label>
+                                        <input type="text" formControlName="lastName" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group m-b25">
+                                        <label class="label-title">Phone *</label>
+                                        <input type="tel" formControlName="phone" class="form-control" />
+                                        <div *ngIf="checkoutForm.get('phone')?.invalid && (checkoutForm.get('phone')?.dirty || checkoutForm.get('phone')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('phone')?.errors?.['required']">Phone number is required.
+                                            </div>
+                                            <div *ngIf="checkoutForm.get('phone')?.errors?.['pattern']">Please enter a valid 10-15 digit phone number.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group m-b25">
+                                        <label class="label-title">Email address *</label>
+                                        <input type="email" formControlName="email" class="form-control" />
+                                        <div *ngIf="checkoutForm.get('email')?.invalid && (checkoutForm.get('email')?.dirty || checkoutForm.get('email')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('email')?.errors?.['required']">Email address is required.
+                                            </div>
+                                            <div *ngIf="checkoutForm.get('email')?.errors?.['email']">Please enter a valid email
+                                                address.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group m-b25">
+                                        <label class="label-title">Street address *</label>
+                                        <input type="text" formControlName="address1" class="form-control m-b15"
+                                            placeholder="House number and street name" />
+                                        <div *ngIf="checkoutForm.get('address1')?.invalid && (checkoutForm.get('address1')?.dirty || checkoutForm.get('address1')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('address1')?.errors?.['required']">Street address is
+                                                required.
+                                            </div>
+                                        </div>
+                                        <input type="text" formControlName="address2" class="form-control"
+                                            placeholder="Apartment, suite, unit, etc. (optional)" />
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="m-b25">
+                                        <label class="label-title">Town / City *</label>
+                                        <input list="cities" formControlName="city" class="form-control" />
+                                        <datalist id="cities">
+                                            <option value="Kota"> </option>
+                                            <option value="Jaipur"> </option>
+                                            <option value="Udaipur"> </option>
+                                            <option value="Another option"> </option>
+                                        </datalist>
+                                        <div *ngIf="checkoutForm.get('city')?.invalid && (checkoutForm.get('city')?.dirty || checkoutForm.get('city')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('city')?.errors?.['required']">Town / City is required.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="m-b25">
+                                        <label class="label-title">State *</label>
+                                        <input list="states" formControlName="state" class="form-control" />
+                                        <datalist id="states">
+                                            <option value="Rajasthan"> </option>
+                                            <option value="Tamil Nadu"> </option>
+                                            <option value="Maharashtra"> </option>
+                                            <option value="Uttar Pradesh"> </option>
+                                        </datalist>
+                                        <div *ngIf="checkoutForm.get('state')?.invalid && (checkoutForm.get('state')?.dirty || checkoutForm.get('state')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('state')?.errors?.['required']">State is required.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group m-b25">
+                                        <label class="label-title">ZIP Code *</label>
+                                        <input type="text" formControlName="zipCode" class="form-control" />
+                                        <div *ngIf="checkoutForm.get('zipCode')?.invalid && (checkoutForm.get('zipCode')?.dirty || checkoutForm.get('zipCode')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('zipCode')?.errors?.['required']">ZIP Code is required.</div>
+                                            <div *ngIf="checkoutForm.get('zipCode')?.errors?.['pattern']">Please enter a valid 6-digit ZIP code.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="m-b25">
+                                        <label class="label-title">Country / Region *</label>
+                                        <select class="default-select form-select w-100" formControlName="country">
+                                            <option value="" disabled selected>Select Country</option>
+                                            <option value="India">India</option>
+                                            <option value="UK">UK</option>
+                                            <option value="Iraq">Iraq</option>
+                                            <option value="Another option">Another option</option>
+                                        </select>
+                                        <div *ngIf="checkoutForm.get('country')?.invalid && (checkoutForm.get('country')?.dirty || checkoutForm.get('country')?.touched)"
+                                            class="text-danger mt-1">
+                                            <div *ngIf="checkoutForm.get('country')?.errors?.['required']">Country is required.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 m-b25">
+                                    <div class="form-group m-b5">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="form-check-input" id="basic_checkbox_1"
+                                                formControlName="createAccount"
+                                                [disabled]="otpVerified" />
+                                            <label class="form-check-label" for="basic_checkbox_1">Create an account?
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <ng-container
+                                *ngIf="otpVerified && userAddresses.length > 0 && activeAddressMode === 'saved' && selectedAddressId !== null">
+                                <div class="col-md-12">
+                                    <p class="text-info">The following address details will be used from your saved
+                                        addresses. Click 'Edit' above to modify them.</p>
+                                    <div class="border p-3 rounded bg-light-subtle">
+                                        <p class="mb-1"><strong>Name:</strong> {{ checkoutForm.get('firstName')?.value }} {{
+                                            checkoutForm.get('lastName')?.value }}</p>
+                                        <p class="mb-1"><strong>Email:</strong> {{ checkoutForm.get('email')?.value }}</p>
+                                        <p class="mb-1"><strong>Phone:</strong> {{ checkoutForm.get('phone')?.value }}</p>
+                                        <p class="mb-1"><strong>Address:</strong> {{ checkoutForm.get('address1')?.value }}<span
+                                                *ngIf="checkoutForm.get('address2')?.value">, {{ checkoutForm.get('address2')?.value }}</span></p>
+                                        <p class="mb-1"><strong>City, State, ZIP:</strong> {{ checkoutForm.get('city')?.value }}, {{
+                                            checkoutForm.get('state')?.value }} - {{ checkoutForm.get('zipCode')?.value }}</p>
+                                        <p class="mb-0"><strong>Country:</strong> {{ checkoutForm.get('country')?.value }}</p>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <div class="col-md-12 m-b25 mt-3">
+                                <div class="form-group">
+                                    <label class="label-title">Order notes (optional)</label>
+                                    <textarea id="comments"
+                                        placeholder="Notes about your order, e.g. special notes for delivery."
+                                        class="form-control" formControlName="orderNotes" cols="90" rows="5"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 side-bar">
+                    <h4 class="title m-b15">Your Order</h4>
+                    <div class="order-detail sticky-top p-4 rounded-lg shadow-md">
+                        <ng-container *ngIf="cartItems.length > 0; else emptyCartOrderSummary">
+                            <div class="cart-item style-1" *ngFor="let item of cartItems">
+                                <div class="dz-media">
+                                    <img [src]="item.product.thumbnail_image || 'https://placehold.co/100x100?text=No+Image'"
+                                        [alt]="item.product.name" />
+                                </div>
+                                <div class="dz-content">
+                                    <h6 class="title mb-0">{{ item.product.name }}</h6>
+                                    <span class="price">&#8377;{{ parseFloat(item.product.special_price) |
+                                        number:'1.2-2' }} x {{ item.quantity }}</span>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <ng-template #emptyCartOrderSummary>
+                            <div class="text-center py-3">
+                                <p>Your cart is empty.</p>
+                                <a routerLink="/shop" class="btn btn-primary btn-sm mt-3">Shop Now</a>
+                            </div>
+                        </ng-template>
+
+                        <table>
+                            <tbody>
+                                <tr class="subtotal">
+                                    <td>Subtotal (Items)</td>
+                                    <td class="price">&#8377;{{ cartService.cartTotal$ | async | number:'1.2-2' }}</td>
+                                </tr>
+                                <tr class="subtotal" *ngIf="(cartService.totalCouponDiscount$ | async)! > 0">
+                                    <td>Offer (Coupon Applied)</td>
+                                    <td class="price text-success">- &#8377;{{ cartService.totalCouponDiscount$ | async
+                                        | number:'1.2-2' }}</td>
+                                </tr>
+                                <tr class="subtotal" *ngIf="(cartService.totalCouponDiscount$ | async)! > 0">
+                                    <td>Subtotal (After Discount)</td>
+                                    <td class="price">&#8377;{{ cartService.subTotalAfterDiscount$ | async |
+                                        number:'1.2-2' }}</td>
+                                </tr>
+                                <tr class="subtotal">
+                                    <td>Delivery Charge</td>
+                                    <td class="price">
+                                        <ng-container
+                                            *ngIf="(cartService.deliveryCharge$ | async) === 0; else showDeliveryCharge">
+                                            <span class="text-success">FREE</span>
+                                        </ng-container>
+                                        <ng-template #showDeliveryCharge>
+                                            + &#8377;{{ cartService.deliveryCharge$ | async | number:'1.2-2' }}
+                                        </ng-template>
+                                    </td>
+                                </tr>
+                                <tr class="total">
+                                    <td>Total</td>
+                                    <td class="price">
+                                        <h5 class="mb-0">&#8377;{{ cartService.finalTotal$ | async | number:'1.2-2' }}
+                                        </h5>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="accordion dz-accordion accordion-sm" id="accordionPaymentMethods">
+                            <div class="accordion-item">
+                                <div class="accordion-header" id="headingCOD">
+                                    <div class="accordion-button collapsed custom-control custom-checkbox border-0"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseCOD" role="navigation"
+                                        aria-expanded="true" aria-controls="collapseCOD">
+                                        <input class="form-check-input radio" type="radio" name="paymentOption"
+                                            id="flexRadioCOD" value="COD" [(ngModel)]="selectedPaymentMethod" checked />
+                                        <label class="form-check-label" for="flexRadioCOD">
+                                            Cash on delivery
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="collapseCOD" class="accordion-collapse collapse show"
+                                    aria-labelledby="headingCOD" data-bs-parent="#accordionPaymentMethods">
+                                    <div class="accordion-body">
+                                        <p class="m-b0">Pay with cash upon delivery. Please ensure you have the exact
+                                            amount ready.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <div class="accordion-header" id="headingRazorpay">
+                                    <div class="accordion-button collapsed custom-control custom-checkbox border-0"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseRazorpay" role="navigation"
+                                        aria-expanded="true" aria-controls="collapseRazorpay">
+                                        <input class="form-check-input radio" type="radio" name="paymentOption"
+                                            id="flexRadioRazorpay" value="Razorpay"
+                                            [(ngModel)]="selectedPaymentMethod" />
+                                        <label class="form-check-label" for="flexRadioRazorpay">
+                                            Razorpay
+                                        </label>
+                                        <img referrerpolicy="origin" src="https://badges.razorpay.com/badge-dark.png "
+                                            style="height: 45px; width: 113px;"
+                                            alt="Razorpay | Payment Gateway | Neobank" />
+                                    </div>
+                                </div>
+                                <div id="collapseRazorpay" class="accordion-collapse collapse"
+                                    aria-labelledby="headingRazorpay" data-bs-parent="#accordionPaymentMethods">
+                                    <div class="accordion-body">
+                                        <p class="m-b0">Pay securely online using credit/debit card, UPI, net banking,
+                                            and more via Razorpay.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text">Your personal data will be used to process your order, support your experience
+                            throughout this website, and for other purposes described in our <a
+                                href="javascript:void(0);">privacy policy.</a></p>
+
+                        <div class="form-group">
+                            <div class="custom-control custom-checkbox d-flex m-b15">
+                                <input type="checkbox" class="form-check-input" id="basic_checkbox_3"
+                                    name="agreedToTerms" [(ngModel)]="agreedToTerms" required />
+                                <label class="form-check-label" for="basic_checkbox_3">I have read and agree to the
+                                    website terms and conditions </label>
+                            </div>
+                            <div *ngIf="agreedToTerms === false" class="text-danger mt-1">
+                                Please agree to the terms and conditions.
+                            </div>
+                        </div>
+
+                        <a href="javascript:void(0);" target="_top" class="btn btn-primary w-100"
+                            [class.disabled]="checkoutForm.invalid || !agreedToTerms || cartItems.length === 0"
+                            (click)="placeOrder()">
+                            PLACE ORDER
+                        </a>
+
+                        <div class="error-message-area text-center mt-3" *ngIf="showErrorMessage">
+                            <p class="text-danger">{{ errorMessage }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,3 @@
+.breadcrumb-row ul .breadcrumb-item+.breadcrumb-item::before {
+    color: white;
+}

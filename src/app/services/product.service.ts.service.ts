@@ -23,7 +23,6 @@ export class ProductServiceTsService {
             // CI3 is already formatting prices, just ensure types if needed
             mrp_price: product.mrp_price,
             special_price: product.special_price,
-            
           })) as Product[];
         } else {
           console.error('API Error: Products not found or status not success', response);
@@ -58,5 +57,9 @@ export class ProductServiceTsService {
         }
       })
     );
+  }
+
+  getProductBySlug(slug: string): Observable<Product | null> {
+    return this.http.get<Product>(`${this.apiUrl}/slug/${slug}`);
   }
 }

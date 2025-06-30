@@ -1,0 +1,180 @@
+<div class="page-content bg-light" *ngIf="product">
+    <div class="d-sm-flex justify-content-between container-fluid py-3">
+        <nav aria-label="breadcrumb" class="breadcrumb-row">
+            <ul class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a routerLink="/"> Home</a></li>
+                <li class="breadcrumb-item">{{ product.name }}</li>
+            </ul>
+        </nav>
+    </div>
+    <section class="content-inner py-0 pb-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-5 col-md-5">
+                    <div class="dz-product-detail static-media sticky-top">
+                        <div class="row align-items-center gx-xl-4 gx-3" id="lightgallery">
+                            <ng-container *ngIf="hasImages">
+                                <div class="col-xl-6 col-md-6 col-6" *ngFor="let image of thumbnailImages">
+                                    <div class="dz-media DZoomImage">
+                                        <a class="mfp-link lg-item" [href]="image.image_url"
+                                            [attr.data-src]="image.image_url">
+                                            <i class="feather icon-maximize dz-maximize top-left"></i>
+                                        </a>
+                                        <img [src]="image.image_url" [alt]="product.name">
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="hasImages">
+                                <div class="col-xl-6 col-md-6 col-6" *ngFor="let image of additionalImages">
+                                    <div class="dz-media DZoomImage">
+                                        <a class="mfp-link lg-item" [href]="image.image_url"
+                                            [attr.data-src]="image.image_url">
+                                            <i class="feather icon-maximize dz-maximize top-left"></i>
+                                        </a>
+                                        <img [src]="image.image_url" [alt]="product.name">
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-7 col-md-7">
+                    <div class="row">
+                        <div class="col-xl-7">
+                            <div class="dz-product-detail style-2 p-t20 ps-0">
+                                <div class="dz-content">
+                                    <div class="dz-content-footer m-0">
+                                        <div class="dz-content-start">
+                                            <span class="badge bg-secondary mb-2" *ngIf="product.tag">{{ product.tag
+                                                }}</span>
+                                            <h4 class="title mb-1">{{ product.name }}</h4>
+                                        </div>
+                                    </div>
+                                    <div class="review-num mb-3">
+                                        <ul class="dz-rating me-2">
+                                            <ng-container
+                                                *ngIf="product.reviews && product.reviews.length > 0; else noReviews">
+                                                <li *ngFor="let filled of getStarArray(calculateProductAverageRating(product.reviews))"
+                                                    [class.star-fill]="filled">
+                                                    <i class="flaticon-star-1"></i>
+                                                </li>
+                                            </ng-container>
+                                            <ng-template #noReviews>
+                                                <li *ngFor="let i of [1,2,3,4,5]"><i class="flaticon-star-1"></i></li>
+                                            </ng-template>
+                                        </ul>
+                                        <span class="text-secondary me-2">
+                                            {{ product.reviews && product.reviews.length > 0 ?
+                                            (calculateProductAverageRating(product.reviews) |
+                                            number:'1.1-1') + ' Rating' : 'No Rating' }}
+                                        </span>
+                                        <a href="javascript:void(0);">({{ product.reviews ?
+                                            product.reviews.length : 0 }} customer reviews)</a>
+                                    </div>
+                                    <p class="para-text">
+                                        {{ product.short_description.length > 300 ?
+                                        (product.short_description |
+                                        slice:0:300) + '...' : product.short_description }}
+                                    </p>
+                                    <div class="dz-info">
+                                        <ul>
+                                            <li><strong>SKU:</strong></li>
+                                            <li>{{ product.id }}</li>
+                                        </ul>
+                                        <ul>
+                                            <li><strong>Category:</strong></li>
+                                            <li>{{ product.categories }}</li>
+                                        </ul>
+                                        <ul>
+                                            <li><strong>Category:</strong></li>
+                                            <li>{{ product.tag }}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="meta-content m-b20 d-flex align-items-end">
+                                        <div class="me-3">
+                                            <span class="form-label">Price</span>
+                                            <span class="price">
+                                                &#8377;{{ product.special_price }}
+                                                <del *ngIf="product.mrp_price !== product.special_price">&#8377;{{
+                                                    product.mrp_price }}</del>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="meta-content m-b20 d-flex align-items-end">
+                                        <div class="btn-quantity light me-0">
+                                            <label class="form-label">Quantity</label>
+                                            <div class="input-group bootstrap-touchspin">
+                                                <span class="input-group-addon bootstrap-touchspin-prefix"
+                                                    style="display: none;"></span>
+                                                <span class="input-group-btn-vertical">
+                                                    <button class="btn btn-default bootstrap-touchspin-down"
+                                                        type="button" (click)="decrementQuickViewQuantity(product)">
+                                                        <i class="fa-solid fa-minus"></i>
+                                                    </button>
+                                                </span>
+                                                <input type="text" [value]="getQuickViewQuantity(product.id)"
+                                                    (change)="onQuickViewQuantityChange(product.id, $event)"
+                                                    name="quickViewQuantity_{{product.id}}"
+                                                    class="form-control text-center" readonly>
+                                                <span class="input-group-addon bootstrap-touchspin-postfix"
+                                                    style="display: none;"></span>
+                                                <span class="input-group-btn-vertical">
+                                                    <button class="btn btn-default bootstrap-touchspin-up" type="button"
+                                                        (click)="incrementQuickViewQuantity(product)">
+                                                        <i class="fa-solid fa-plus"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-5">
+                            <div class="cart-detail">
+                                <div class="icon-bx-wraper style-4 m-b30">
+                                    <p class="w-100 m-b20 p-2 d-block text-center">
+                                        ₹200 Product discount
+                                        <a href="javascript:void(0)" class="text-uppercase btn btn-outline-secondary p-2 mt-2" style="border: 1px dotted #bbb;">epspecial</a>
+                                        
+                                        <br>
+                                        <span style="font-size: 10px;"><i class="fa-regular fa-clock me-1"></i>Expires on Jul 31, 2025</span>
+                                    </p>
+                                </div>
+                                <div class="icon-bx-wraper style-4 m-b30">
+                                    <div class="icon-bx">
+                                        <img src="assets/images/info.png"
+                                            style="width: 50px;border: 1px solid gray;padding: 10px;border-radius: 99%;"
+                                            alt="/">
+                                    </div>
+                                    <div class="icon-content">
+                                        <h6 class="dz-title text-red">Important Notice</h6>
+                                        <p>
+                                            Delivery may be delayed on weekends or peak times.
+                                            Contact support for any queries.
+                                        </p>
+                                    </div>
+                                </div>
+                                <table>
+                                    <tbody>
+                                        <tr class="total">
+                                            <td>
+                                                <h6 class="mb-0">Total</h6>
+                                            </td>
+                                            <td class="price">
+                                                &#8377;{{ getTotalPrice(product) | number:'1.2-2' }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-secondary w-100" (click)="onAddToCart(product)">ADD
+                                    TO
+                                    CART</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

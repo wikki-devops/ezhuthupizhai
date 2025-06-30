@@ -138,7 +138,7 @@ $config['subclass_prefix'] = 'MY_';
 | Note: This will NOT disable or override the CodeIgniter-specific
 |	autoloading (application/config/autoload.php)
 */
-$config['composer_autoload'] = FALSE;
+$config['composer_autoload'] = FCPATH . 'vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -213,7 +213,7 @@ $config['directory_trigger'] = 'd';
 | your log files will fill up very fast.
 |
 */
-$config['log_threshold'] = 0;
+$config['log_threshold'] = 4;
 
 /*
 |--------------------------------------------------------------------------
@@ -225,6 +225,7 @@ $config['log_threshold'] = 0;
 |
 */
 $config['log_path'] = '';
+$config['msg91_auth_key'] = '457575A2vvWqOVnY685bacf9P1'; // Replace with your actual Msg91 Auth Key
 
 /*
 |--------------------------------------------------------------------------

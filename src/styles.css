@@ -52,3 +52,128 @@
 .icon-bx-wraper.style-4 {
     padding: 10px;
 }
+
+.main-slider-wrapper .banner-media:after {
+    font-size: 50px;
+    left: -20px;
+}
+
+/* src/app/header/header.component.css */
+
+/* Re-confirming parent display, as it's critical */
+.input-group.bootstrap-touchspin {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    /* Explicitly prevent wrapping */
+    align-items: center !important;
+    justify-content: center !important;
+    /* Or space-between */
+    width: auto !important;
+    max-width: 160px !important;
+    /* Adjust as needed */
+    min-width: 120px !important;
+    /* Ensure enough space */
+    height: 40px !important;
+    /* Consistent height for the whole counter */
+    /* Remove any default input-group borders if they are causing issues */
+    border: none !important;
+}
+
+/* Force children spans to be proper flex items and prevent full width */
+.input-group.bootstrap-touchspin .input-group-btn-vertical {
+    display: flex !important;
+    /* Ensure it is a flex item itself */
+    flex-basis: auto !important;
+    /* Let content determine base size */
+    flex-grow: 0 !important;
+    /* Prevent from growing */
+    flex-shrink: 0 !important;
+    /* Prevent from shrinking */
+    width: 40px !important;
+    /* Fixed width for the button's container */
+    height: 100% !important;
+    /* Fill parent height */
+    padding: 0 !important;
+    margin: 0 !important;
+    position: static !important;
+    /* CRITICAL: Remove absolute positioning */
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    vertical-align: middle !important;
+}
+
+/* Force the input field to be a proper flex item and control its width */
+.input-group.bootstrap-touchspin .form-control {
+    display: block !important;
+    /* Input typically remains 'block' inside its flex item container */
+    flex-basis: auto !important;
+    /* Let content determine base size */
+    flex-grow: 1 !important;
+    /* Allow it to grow and fill available space */
+    flex-shrink: 1 !important;
+    /* Allow it to shrink if needed */
+    width: auto !important;
+    /* Let flexbox control the width */
+    max-width: 70px !important;
+    /* Limit maximum width */
+    min-width: 40px !important;
+    /* Ensure minimum width */
+    height: 100% !important;
+    /* Match parent height */
+    margin: 0 5px !important;
+    /* Space between input and buttons */
+    padding: 0 5px !important;
+    /* Internal padding */
+    text-align: center !important;
+    border-radius: 5px !important;
+    border: 1px solid var(--border-color, #ccc) !important;
+}
+
+/* Style the buttons within their spans */
+button.bootstrap-touchspin-down,
+button.bootstrap-touchspin-up {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    /* Fill parent span height */
+    width: 100% !important;
+    /* Fill parent span width */
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    border: 1px solid var(--primary, #007bff) !important;
+    background-color: transparent !important;
+    color: var(--primary, #007bff) !important;
+    font-size: 1.2em !important;
+    cursor: pointer;
+    position: static !important;
+    /* Crucial: Ensure buttons themselves are static */
+    z-index: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Specific styling for the plus button */
+button.bootstrap-touchspin-up {
+    background-color: var(--primary, #007bff) !important;
+    color: #fff !important;
+}
+
+/* Ensure icons are displayed */
+.fa-solid.fa-minus,
+.fa-solid.fa-plus {
+    display: block !important;
+    line-height: 1 !important;
+}
+
+.dz-offcanvas.offcanvas.offcanvas-end .offcanvas-body {
+    padding: 40px;
+}
+
+.icon-bx-wraper.style-4{
+    border: 1px dotted var(--secondary)
+}

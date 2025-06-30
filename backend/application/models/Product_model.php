@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Product_model extends CI_Model {
+class Product_model extends CI_Model
+{
 
     public function __construct()
     {
@@ -58,12 +59,14 @@ class Product_model extends CI_Model {
      * @param int $product_id
      * @return array An array of review objects.
      */
-    public function get_product_reviews($product_id) {
+    public function get_product_reviews($product_id)
+    {
         $this->db->where('product_id', $product_id);
-        $query = $this->db->get('reviews'); 
+        $query = $this->db->get('reviews');
         $reviews = $query->result();
 
-        foreach ($reviews as $review) {}
+        foreach ($reviews as $review) {
+        }
 
         return $reviews;
     }
@@ -82,5 +85,35 @@ class Product_model extends CI_Model {
             }
         }
         return array_values(array_unique($unique_categories));
+    }
+
+    public function getProductBySlug($slug)
+    {
+        $this->db->where('slug', $slug);
+        $query = $this->db->get('products');
+        $product = $query->row_array(); // Return as an associative array
+
+        if ($product) {
+            // Add images
+            $images = $this->get_product_images($product['id'], false); // get all images
+            $product['images'] = $images;
+
+            // Add thumbnail image
+            $thumbnail = $this->get_product_images($product['id'], true);
+            $product['thumbnail_image'] = !empty($thumbnail) ? $thumbnail[0]->image_url : null;
+
+            // Add reviews
+            $reviews = $this->get_product_reviews($product['id']);
+            $product['reviews'] = $reviews;
+        }
+
+        return $product;
+    }
+
+    public function slugExists($slug)
+    {
+        $this->db->where('slug', $slug);
+        $query = $this->db->get('products');
+        return $query->num_rows() > 0;
     }
 }

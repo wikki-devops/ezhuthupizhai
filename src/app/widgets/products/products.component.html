@@ -38,9 +38,9 @@
                         </div>
                         <div class="dz-info">
                             <div class="dz-content">
-                                <h5 class="title w-100">
+                                <a [routerLink]="['/products', slugify(product.name)]" target="_top" class="title w-100 fs-18">
                                     {{ product.name }}
-                                </h5>
+                                </a>
                             </div>
                             <div class="meta-content">
                                 <span class="price">
@@ -50,10 +50,11 @@
                                 </span>
                             </div>
                             <div class="add-cart-button">
-                                <a href="shop-cart.html" class="btn btn-secondary btn-md btn-icon">
+                                <button type="button" class="btn btn-secondary btn-md btn-icon"
+                                    (click)="onAddToCart(product)">
                                     <i class="icon feather icon-shopping-cart d-md-none d-block"></i>
                                     <span class="d-md-block d-none">Add to cart</span>
-                                </a>
+                                </button>
                             </div>
                         </div>
                         <div class="product-tag">
@@ -82,8 +83,7 @@
                                                             <span class="badge bg-secondary mb-2">
                                                                 {{ product.tag | uppercase }}
                                                             </span>
-                                                            <h4 class="title mb-1"><a href="javascript:void(0);">{{
-                                                                    product.name }}</a></h4>
+                                                            <h4 class="title mb-1">{{product.name }}</h4>
                                                             <div class="review-num">
                                                                 <ul class="dz-rating me-2">
                                                                     <ng-container
@@ -109,7 +109,8 @@
                                                         </div>
                                                     </div>
                                                     <p class="para-text">
-                                                        {{ product.short_description.length > 150 ? (product.short_description |
+                                                        {{ product.short_description.length > 150 ?
+                                                        (product.short_description |
                                                         slice:0:150) + '...' : product.short_description }}
                                                     </p>
                                                     <div class="dz-info mb-0">
@@ -122,7 +123,7 @@
                                                             <li>PRT{{ product.categories }}E63A</li>
                                                         </ul>
                                                         <ul>
-                                                            <li><strong>Tags:</strong></li>
+                                                            <li><strong>Offer:</strong></li>
                                                             <li>{{ product.tag }}</li>
                                                         </ul>
                                                     </div>
@@ -138,26 +139,41 @@
                                                         </div>
                                                         <div class="btn-quantity light me-0">
                                                             <label class="form-label">Quantity</label>
-                                                            <div class="input-group bootstrap-touchspin"><span
+                                                            <div class="input-group bootstrap-touchspin">
+                                                                <span
                                                                     class="input-group-addon bootstrap-touchspin-prefix"
-                                                                    style="display: none;"></span><input type="text"
-                                                                    value="1" name="demo_vertical2" class="form-control"
-                                                                    style="display: block;"><span
-                                                                    class="input-group-addon bootstrap-touchspin-postfix"
-                                                                    style="display: none;"></span><span
-                                                                    class="input-group-btn-vertical"><button
-                                                                        class="btn btn-default bootstrap-touchspin-up"
-                                                                        type="button"><i
-                                                                            class="fa-solid fa-plus"></i></button><button
+                                                                    style="display: none;"></span>
+                                                                <span class="input-group-btn-vertical">
+                                                                    <button
                                                                         class="btn btn-default bootstrap-touchspin-down"
-                                                                        type="button"><i
-                                                                            class="fa-solid fa-minus"></i></button></span>
+                                                                        type="button"
+                                                                        (click)="decrementQuickViewQuantity(product)">
+                                                                        <i class="fa-solid fa-minus"></i>
+                                                                    </button>
+                                                                </span>
+                                                                <input type="text"
+                                                                    [value]="getQuickViewQuantity(product.id)"
+                                                                    (change)="onQuickViewQuantityChange(product.id, $event)"
+                                                                    name="quickViewQuantity_{{product.id}}"
+                                                                    class="form-control text-center" readonly>
+                                                                <span
+                                                                    class="input-group-addon bootstrap-touchspin-postfix"
+                                                                    style="display: none;"></span>
+                                                                <span class="input-group-btn-vertical">
+                                                                    <button
+                                                                        class="btn btn-default bootstrap-touchspin-up"
+                                                                        type="button"
+                                                                        (click)="incrementQuickViewQuantity(product)">
+                                                                        <i class="fa-solid fa-plus"></i>
+                                                                    </button>
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="icon-bx-wraper style-4 m-b10">
                                                         <div class="icon-bx">
-                                                            <img src="assets/images/info.png" style="width: 80px;" alt="/">
+                                                            <img src="assets/images/info.png" style="width: 80px;"
+                                                                alt="/">
                                                         </div>
                                                         <div class="icon-content">
                                                             <h6 class="dz-title text-red">Important Notice</h6>
@@ -167,9 +183,16 @@
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <div class=" cart-btn">
-                                                        <a href="shop-cart.html"
-                                                            class="btn btn-secondary text-uppercase">Add To Cart</a>
+                                                    <div class="cart-btn">
+                                                        <button type="button" class="btn btn-secondary text-uppercase"
+                                                            (click)="onAddToCart(product, getQuickViewQuantity(product.id))"
+                                                            data-bs-dismiss="modal" aria-label="Close">
+                                                            Add To Cart
+                                                        </button>
+                                                        <a [routerLink]="['/products', slugify(product.name)]"
+                                                            class="btn btn-secondary text-uppercase"
+                                                            data-bs-dismiss="modal" aria-label="Close"> More Details
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>

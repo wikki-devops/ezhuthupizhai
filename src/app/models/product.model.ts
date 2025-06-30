@@ -15,6 +15,7 @@ export interface Product {
   updated_at?: string;
 
   // These properties will be loaded only for the detailed view (quick view)
-  images?: ProductImage[];
+  images: ProductImage[];
   reviews: Review[];
+  
 }
