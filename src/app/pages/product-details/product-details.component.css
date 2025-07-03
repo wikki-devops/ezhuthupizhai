@@ -10,7 +10,56 @@
 .icon-bx-wraper.style-4 {
     display: block;
 }
+
 .icon-bx-wraper.style-4 .icon-content {
     margin-left: 0px;
     text-align: center;
+}
+
+.product-description {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+}
+
+/* Add some basic styles for the stars, if not already present */
+.rating-stars .star {
+    cursor: pointer;
+    color: #ccc;
+    /* Default color for unselected stars */
+    display: inline-block;
+    font-size: 1.2em;
+    /* Adjust size as needed */
+}
+
+i.fas.fa-star.fa-fw {
+    font-size: 24px;
+}
+.rating-stars .star.selected i.fas,
+.dz-rating li.star-fill i.flaticon-star-1 {
+    color: #ffc107;
+    /* Color for selected/filled stars (e.g., gold/yellow) */
+}
+
+/* For product review display stars */
+.review-rating-display .flaticon-star-1 {
+    color: #ccc;
+    /* Default for review display */
+    font-size: 1em;
+}
+
+.review-rating-display .flaticon-star-1.star-fill {
+    color: #ffc107;
+}
+
+.invalid-feedback {
+    color: red;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}
+
+input.ng-touched.ng-invalid,
+textarea.ng-touched.ng-invalid,
+select.ng-touched.ng-invalid {
+    border-color: red !important;
 }

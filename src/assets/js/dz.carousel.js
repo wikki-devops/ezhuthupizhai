@@ -815,53 +815,53 @@ var PixioCarousel = function(){
 	}
 
 	// Split Swiper ==
-	var handleCollectionsSwiper = function() {	
-		var swiper = new Swiper('.testimonial-swiper', {
-			speed: 1500,
-			parallax: true,
-			slidesPerView: 3,
-			spaceBetween: 30,
-			loop:true,
-			autoplay: {
-			   delay: 3000,
-			},
+	// var handleCollectionsSwiper = function() {	
+	// 	var swiper = new Swiper('.testimonial-swiper', {
+	// 		speed: 1500,
+	// 		parallax: true,
+	// 		slidesPerView: 3,
+	// 		spaceBetween: 30,
+	// 		loop:true,
+	// 		autoplay: {
+	// 		   delay: 3000,
+	// 		},
 			
-			breakpoints: {
-				1600: {
-				slidesPerView: 3,
-				},
-				1200: {
-				slidesPerView: 3,
-				},
-				1024: {
-				slidesPerView: 2,
-				},
-				991: {
-				slidesPerView: 2,
-				},
-				767: {
-				slidesPerView: 2,
-				},
-				575: {
-				slidesPerView: 2,
-				},
-				360: {
-				slidesPerView: 1,
-				},
-			},
-			navigation: {
-	          	nextEl: ".testimonial-button-next",
-	         	 prevEl: ".testimonial-button-prev",
-	        },
-			pagination: {
-	         	 el: ".swiper-pagination",
-	         	 clickable: true,
-	         	 renderBullet: function (index, className) {
-	           	 return '<span class="' + className + '">' +"0"+ (index + 1) + "</span>";
-	          	},
-	        },
-		});
-	}
+	// 		breakpoints: {
+	// 			1600: {
+	// 			slidesPerView: 3,
+	// 			},
+	// 			1200: {
+	// 			slidesPerView: 3,
+	// 			},
+	// 			1024: {
+	// 			slidesPerView: 2,
+	// 			},
+	// 			991: {
+	// 			slidesPerView: 2,
+	// 			},
+	// 			767: {
+	// 			slidesPerView: 2,
+	// 			},
+	// 			575: {
+	// 			slidesPerView: 2,
+	// 			},
+	// 			360: {
+	// 			slidesPerView: 1,
+	// 			},
+	// 		},
+	// 		navigation: {
+	//           	nextEl: ".testimonial-button-next",
+	//          	 prevEl: ".testimonial-button-prev",
+	//         },
+	// 		pagination: {
+	//          	 el: ".swiper-pagination",
+	//          	 clickable: true,
+	//          	 renderBullet: function (index, className) {
+	//            	 return '<span class="' + className + '">' +"0"+ (index + 1) + "</span>";
+	//           	},
+	//         },
+	// 	});
+	// }
 	
 	// Split Swiper ==
 	var mainSliderSlick = function() {
@@ -938,7 +938,7 @@ var PixioCarousel = function(){
 
 		load:function(){
 			handleMainSwiper();
-			handleCollectionsSwiper();
+			// handleCollectionsSwiper();
 			handleMainSwiper2();
 			handlekanbernSwiper();
 			BlogSlideshowSwiper();

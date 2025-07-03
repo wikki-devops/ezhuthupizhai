@@ -5,6 +5,7 @@ import { delay, map, catchError, tap, take, filter, switchMap } from 'rxjs/opera
 import { Product } from '../models/product.model';
 import { CartItem } from '../models/cart-item.model';
 import { AppliedCoupon } from '../models/applied-coupon.model';
+import { environment } from '../environments/environment';
 
 declare const bootstrap: any;
 
@@ -12,7 +13,8 @@ declare const bootstrap: any;
   providedIn: 'root'
 })
 export class CartService implements OnDestroy {
-  private apiUrl = 'http://localhost/ezhuthupizhai/backend/api/get_all_coupons';
+  private apiUrl = environment.apiUrl + 'api/get_all_coupons';
+  private checkoutApiUrl = environment.apiUrl + 'checkout/';
 
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   cartItems$: Observable<CartItem[]> = this.cartItemsSubject.asObservable();
@@ -23,7 +25,7 @@ export class CartService implements OnDestroy {
   private _allCouponsFromDatabase: AppliedCoupon[] = [];
   private couponsLoaded = new BehaviorSubject<boolean>(false);
 
-  private _currentCustomerId: BehaviorSubject<number | null> = new BehaviorSubject<number | null>(101); // Default for testing
+  private _currentCustomerId: BehaviorSubject<number | null> = new BehaviorSubject<number | null>(101);
   currentCustomerId$: Observable<number | null> = this._currentCustomerId.asObservable();
 
   private _manualOverrideCouponCode = new BehaviorSubject<string | null>(null);
@@ -32,28 +34,19 @@ export class CartService implements OnDestroy {
   private _suppressAutoApply = new BehaviorSubject<boolean>(false);
   suppressAutoApply$: Observable<boolean> = this._suppressAutoApply.asObservable();
 
-
   public updateCurrentCustomerId(id: number | null): void {
     if (this._currentCustomerId.value !== id) {
       this._currentCustomerId.next(id);
-      console.log(`[CartService] Customer ID updated to: ${id}`);
     }
   }
 
-  // MODIFIED: Added console logs to itemsTotal$ calculation
   public readonly itemsTotal$: Observable<number> = this.cartItemsSubject.asObservable().pipe(
     map(items => {
       let total = 0;
-      console.log('[CartService] Calculating itemsTotal$. Items provided to pipe:', items); // This log is correctly scoped
-
-      total = items.reduce((sum, item) => { // 'item' is correctly scoped *within* the reduce callback
+      total = items.reduce((sum, item) => {
         const price = parseFloat(item.product.special_price as any) || 0;
-        // This log is now correctly placed inside the reduce callback where 'item' and 'price' are defined
-        console.log(`[CartService] Item: ${item.product.name} (ID: ${item.product.id}), Quantity: ${item.quantity}, Stored Price: "${item.product.special_price}", Parsed Price: ${price}`);
         return sum + (price * item.quantity);
       }, 0);
-
-      console.log('[CartService] Calculated itemsTotal (before coupons):', total); // This log is correctly scoped
       return total;
     })
   );
@@ -67,7 +60,6 @@ export class CartService implements OnDestroy {
     this._currentCustomerId.asObservable()
   ]).pipe(
     map(([itemsTotal, appliedCoupons, loaded, currentCustomerId]) => {
-      // ... (your existing totalCouponDiscount$ logic) ...
       if (!loaded || appliedCoupons.length === 0) {
         return 0;
       }
@@ -76,19 +68,16 @@ export class CartService implements OnDestroy {
       const couponDefinition = this._allCouponsFromDatabase.find(c => c.coupon_code === applied.coupon_code);
 
       if (!couponDefinition) {
-        console.warn(`[Coupon Validation] Applied coupon '${applied.coupon_code}' not found in database. Setting discount to 0.`);
         return 0;
       }
 
       const isExpired = couponDefinition.expiry_date && new Date() > new Date(couponDefinition.expiry_date);
       if (isExpired) {
-        console.warn(`[Coupon Validation] Applied coupon '${couponDefinition.coupon_code}' has expired. Setting discount to 0.`);
         return 0;
       }
 
       const meetsMinOrder = itemsTotal >= (couponDefinition.min_order_value || 0);
       if (!meetsMinOrder) {
-        console.warn(`[Coupon Validation] Applied coupon '${couponDefinition.coupon_code}' no longer meets minimum order value (required: ${couponDefinition.min_order_value}, current: ${itemsTotal}). Setting discount to 0.`);
         return 0;
       }
 
@@ -98,12 +87,11 @@ export class CartService implements OnDestroy {
           ? couponDefinition.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id))
           : Array.isArray(couponDefinition.allowed_customer_ids) ? couponDefinition.allowed_customer_ids : [];
 
-        if (currentCustomerId === null || !allowedIds.includes(currentCustomerId)) {
+        if (currentCustomerId === null || !allowedIds.includes(currentCustomerId as number)) { // Type assertion here
           isCustomerAllowed = false;
         }
       }
       if (!isCustomerAllowed) {
-        console.warn(`[Coupon Validation] Applied coupon '${couponDefinition.coupon_code}' is not available for this customer. Setting discount to 0.`);
         return 0;
       }
 
@@ -116,10 +104,9 @@ export class CartService implements OnDestroy {
       return Math.min(discount, itemsTotal);
     }),
     catchError(err => {
-      console.error("[Coupon Validation] Error calculating totalCouponDiscount$", err);
       this.appliedCouponsSubject.next([]);
       this._manualOverrideCouponCode.next(null);
-      this._suppressAutoApply.next(false); // Reset suppression on error
+      this._suppressAutoApply.next(false);
       this.saveCouponsToLocalStorage();
       return of(0);
     }),
@@ -139,13 +126,12 @@ export class CartService implements OnDestroy {
             (currentCustomerId === null ||
               !(typeof couponDef.allowed_customer_ids === 'string'
                 ? couponDef.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id))
-                : (Array.isArray(couponDef.allowed_customer_ids) ? couponDef.allowed_customer_ids.includes(currentCustomerId) : false))));
+                : (Array.isArray(couponDef.allowed_customer_ids) ? couponDef.allowed_customer_ids.includes(currentCustomerId as number) : false)))); // Type assertion here
 
         if (isInvalidNow) {
-          console.log(`[Coupon Auto-Removal - from totalCouponDiscount$ tap] Applied coupon '${currentAppliedCoupon.coupon_code}' became invalid. Removing.`);
           this.appliedCouponsSubject.next([]);
           this._manualOverrideCouponCode.next(null);
-          this._suppressAutoApply.next(false); // Coupon became invalid, allow auto-apply to potentially find a new best one
+          this._suppressAutoApply.next(false);
           this.saveCouponsToLocalStorage();
         }
       }
@@ -182,16 +168,15 @@ export class CartService implements OnDestroy {
   constructor(private http: HttpClient) {
     this._initSubscription = this.fetchCouponsFromBackend().pipe(
       tap(() => this.couponsLoaded.next(true)),
-      tap(() => this.loadCartFromLocalStorage()), // Cart loading after coupons are loaded
-      tap(() => this.loadCouponsFromLocalStorage()), // MODIFIED: Logic within to handle _suppressAutoApply on load
+      tap(() => this.loadCartFromLocalStorage()),
+      tap(() => this.loadCouponsFromLocalStorage()),
       take(1)
     ).subscribe(
       () => {
-        console.log('[CartService Init] Coupons and local storage loaded.');
-        this.applyBestAvailableCoupon(); // Initial application (respecting suppression if loaded)
+        this.applyBestAvailableCoupon();
         this.setupAutoApplyListeners();
       },
-      error => console.error('[CartService Init] Error during initial setup:', error)
+      error => console.error(error)
     );
   }
 
@@ -215,9 +200,8 @@ export class CartService implements OnDestroy {
       this._manualOverrideCouponCode.asObservable(),
     ]).pipe(
       filter(() => this.couponsLoaded.value),
-      delay(0), // Debounce
+      delay(0),
       tap(() => {
-        console.log(`[Auto-Apply Listener] State changed (Cart/Customer/Manual Override). Re-evaluating best coupon.`);
         this.applyBestAvailableCoupon();
       })
     ).subscribe();
@@ -236,10 +220,8 @@ export class CartService implements OnDestroy {
       }),
       tap(processedCoupons => {
         this._allCouponsFromDatabase = processedCoupons;
-        console.log('[CartService] Coupons loaded from DB into Angular service:', this._allCouponsFromDatabase);
       }),
       catchError(error => {
-        console.error('[CartService] Error fetching coupons from backend:', error);
         this._allCouponsFromDatabase = [];
         return of([]);
       })
@@ -263,7 +245,7 @@ export class CartService implements OnDestroy {
 
             const allowedIds: number[] = Array.isArray(coupon.allowed_customer_ids) ? coupon.allowed_customer_ids :
               (typeof coupon.allowed_customer_ids === 'string' ? coupon.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id)) : []);
-            return allowedIds.includes(currentCustomerId);
+            return allowedIds.includes(currentCustomerId as number); // Type assertion here
           }
           return false;
         });
@@ -285,7 +267,7 @@ export class CartService implements OnDestroy {
           const allowedIds: number[] = typeof coupon.allowed_customer_ids === 'string'
             ? coupon.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id))
             : Array.isArray(coupon.allowed_customer_ids) ? coupon.allowed_customer_ids : [];
-          if (!allowedIds.includes(currentCustomerId)) return false;
+          if (!allowedIds.includes(currentCustomerId as number)) return false; // Type assertion here
         }
         return true;
       }),
@@ -293,42 +275,24 @@ export class CartService implements OnDestroy {
     );
   }
 
-
   private saveCartToLocalStorage(): void {
     localStorage.setItem('shopping_cart', JSON.stringify(this.cartItemsSubject.value));
-    console.log('[CartService] Cart saved to local storage:', this.cartItemsSubject.value); // NEW LOG
   }
 
-  // MODIFIED: Added console logs to loadCartFromLocalStorage
   private loadCartFromLocalStorage(): void {
     const storedCart = localStorage.getItem('shopping_cart');
-    console.log('[CartService] Raw cart data from localStorage:', storedCart); // This log is correctly scoped
-
     if (storedCart) {
       try {
         const cartItems: CartItem[] = JSON.parse(storedCart);
-        // This log is correctly placed after 'cartItems' is defined
-        console.log('[CartService] Parsed cart items before filtering (from localStorage):', cartItems);
-
-        const validCartItems = cartItems.filter(item => { // 'item' is correctly scoped *within* the filter callback
+        const validCartItems = cartItems.filter(item => {
           const isValid = item.product && item.product.id !== undefined && item.quantity !== undefined;
-          if (!isValid) {
-            // This log is correctly placed inside the filter callback where 'item' is defined
-            console.warn('[CartService] Invalid cart item detected during load. Item:', item);
-          }
           return isValid;
         });
-        // This log is correctly placed after 'validCartItems' is defined
-        console.log('[CartService] Valid cart items after filtering (from localStorage):', validCartItems);
         this.cartItemsSubject.next(validCartItems);
-        console.log('[CartService] Cart loaded from local storage. Items:', validCartItems.length);
       } catch (e) {
-        console.error('[CartService] Error parsing stored cart data from localStorage:', e);
         localStorage.removeItem('shopping_cart');
         this.cartItemsSubject.next([]);
       }
-    } else {
-      console.log('[CartService] No cart data found in local storage.'); // This log is correctly scoped
     }
   }
 
@@ -343,7 +307,6 @@ export class CartService implements OnDestroy {
       suppressAutoApply: this._suppressAutoApply.value
     };
     localStorage.setItem('applied_coupons_data', JSON.stringify(dataToStore));
-    console.log('[CartService] Coupons data saved to local storage:', dataToStore);
   }
 
   private loadCouponsFromLocalStorage(): void {
@@ -355,7 +318,7 @@ export class CartService implements OnDestroy {
           ...coupon,
           expiry_date: coupon.expiry_date ? new Date(coupon.expiry_date) : undefined,
           allowed_customer_ids: typeof coupon.allowed_customer_ids === 'string'
-            ? coupon.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id))
+            ? coupon.allowed_customer_ids.split(',').map((id: number) => parseInt(id as any, 10)).filter((id: number) => !isNaN(id))
             : (Array.isArray(coupon.allowed_customer_ids) ? coupon.allowed_customer_ids : null)
         }));
 
@@ -373,9 +336,7 @@ export class CartService implements OnDestroy {
 
           if (couponDefinition) {
             this.appliedCouponsSubject.next([couponDefinition]);
-            console.log(`[CartService] Stored coupon '${storedCouponCode}' found and re-applied.`);
           } else {
-            console.warn(`[CartService] Stored coupon '${storedCouponCode}' not found in current backend coupons. Clearing from local storage.`);
             this.appliedCouponsSubject.next([]);
             this.saveCouponsToLocalStorage();
             this._manualOverrideCouponCode.next(null);
@@ -385,7 +346,6 @@ export class CartService implements OnDestroy {
           this.appliedCouponsSubject.next([]);
         }
       } catch (e) {
-        console.error('[CartService] Error parsing applied coupons data from local storage:', e);
         this.appliedCouponsSubject.next([]);
         this._manualOverrideCouponCode.next(null);
         this._suppressAutoApply.next(false);
@@ -395,41 +355,22 @@ export class CartService implements OnDestroy {
       this._manualOverrideCouponCode.next(null);
       this._suppressAutoApply.next(false);
     }
-    console.log('[CartService] Coupons data loaded from local storage.');
   }
 
-  // MODIFIED: addToCart, removeFromCart, updateQuantity to reset suppression
   addToCart(product: Product, quantity: number = 1): void {
-    // Log the cart state *before* any changes
-    const initialItems = this.cartItemsSubject.value;
-    console.log('[CartService - addToCart] === START ADD TO CART PROCESS ===');
-    console.log('[CartService - addToCart] Initial cart state (from BehaviorSubject.value):', JSON.stringify(initialItems));
-    console.log('[CartService - addToCart] Product attempting to add:', JSON.stringify(product), 'with quantity:', quantity);
-
-    const currentItems = [...initialItems]; // Create a shallow copy to modify safely
+    const currentItems = [...this.cartItemsSubject.value];
     const existingItem = currentItems.find(item => item.product.id === product.id);
 
     if (existingItem) {
       existingItem.quantity += quantity;
-      console.log('[CartService - addToCart] Existing item found. New quantity:', existingItem.quantity);
     } else {
       currentItems.push({ product, quantity });
-      console.log('[CartService - addToCart] New item added to *local* currentItems array.');
     }
 
-    // Log the cart state *after* modifying 'currentItems' but *before* updating the BehaviorSubject
-    console.log('[CartService - addToCart] Cart state *after* local modification:', JSON.stringify(currentItems));
-
-    // Update the BehaviorSubject with the new array
-    this.cartItemsSubject.next(currentItems); // Pass the modified copy
-
-    // Log the cart state *after* updating the BehaviorSubject
-    console.log('[CartService - addToCart] Cart state *after* updating BehaviorSubject:', JSON.stringify(this.cartItemsSubject.value));
-
+    this.cartItemsSubject.next(currentItems);
     this._suppressAutoApply.next(false);
     this.saveCartToLocalStorage();
     this.openOffcanvasCart();
-    console.log('[CartService - addToCart] === END ADD TO CART PROCESS ===');
   }
 
   removeFromCart(productId: number): void {
@@ -437,7 +378,6 @@ export class CartService implements OnDestroy {
     this.cartItemsSubject.next([...currentItems]);
     this._suppressAutoApply.next(false);
     this.saveCartToLocalStorage();
-    console.log('[CartService] Item removed from cart. Current cart items count:', this.cartItemsSubject.value.length); // NEW LOG
   }
 
   updateQuantity(productId: number, newQuantity: number): void {
@@ -454,7 +394,6 @@ export class CartService implements OnDestroy {
     this.cartItemsSubject.next([...currentItems]);
     this._suppressAutoApply.next(false);
     this.saveCartToLocalStorage();
-    console.log('[CartService] Item quantity updated. Current cart items count:', this.cartItemsSubject.value.length); // NEW LOG
   }
 
   public getCartTotalBeforeCoupons(): number {
@@ -470,7 +409,6 @@ export class CartService implements OnDestroy {
   }
 
   public applyCouponByCode(couponCode: string): { success: boolean, message: string } {
-    console.log('[Coupon Apply (Manual)] Attempting to apply coupon:', couponCode);
     const couponToApply = this._allCouponsFromDatabase.find(c => c.coupon_code.toUpperCase() === couponCode.toUpperCase());
 
     if (!couponToApply) {
@@ -496,7 +434,7 @@ export class CartService implements OnDestroy {
       }
       const allowedIds: number[] = Array.isArray(couponToApply.allowed_customer_ids) ? couponToApply.allowed_customer_ids :
         (typeof couponToApply.allowed_customer_ids === 'string' ? couponToApply.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id)) : []);
-      if (!allowedIds.includes(currentCustomerId)) {
+      if (!allowedIds.includes(currentCustomerId as number)) { // Type assertion here
         return { success: false, message: `Coupon "${couponToApply.coupon_code}" is not available for your account.` };
       }
     }
@@ -505,7 +443,6 @@ export class CartService implements OnDestroy {
     this._manualOverrideCouponCode.next(couponToApply.coupon_code);
     this._suppressAutoApply.next(false);
     this.saveCouponsToLocalStorage();
-    console.log(`[Coupon Apply (Manual)] Successfully applied: ${couponToApply.coupon_code}. Set as manual override, auto-apply enabled.`);
 
     return { success: true, message: `Coupon "${couponToApply.coupon_code}" applied successfully!` };
   }
@@ -515,16 +452,10 @@ export class CartService implements OnDestroy {
     const isCurrentlyApplied = currentApplied.length > 0 && currentApplied[0].coupon_code.toUpperCase() === couponCode.toUpperCase();
 
     if (isCurrentlyApplied) {
-      console.log(`[Coupon Remove] Initiating removal of coupon: ${couponCode}.`);
       this.appliedCouponsSubject.next([]);
       this._manualOverrideCouponCode.next(null);
-
       this._suppressAutoApply.next(true);
-      console.log('[Coupon Remove] Auto-application suppressed.');
-
       this.saveCouponsToLocalStorage();
-    } else {
-      console.log(`[Coupon Remove] Coupon "${couponCode}" was requested to be removed, but it's not the currently applied coupon.`);
     }
   }
 
@@ -535,7 +466,6 @@ export class CartService implements OnDestroy {
     this._suppressAutoApply.next(false);
     this.saveCartToLocalStorage();
     this.saveCouponsToLocalStorage();
-    console.log('[CartService] Cart and coupons cleared.');
   }
 
   private openOffcanvasCart(): void {
@@ -548,22 +478,20 @@ export class CartService implements OnDestroy {
 
   public applyBestAvailableCoupon(): void {
     if (this._suppressAutoApply.value) {
-      console.log('[applyBestAvailableCoupon] Auto-application is currently suppressed. Returning.');
       return;
     }
 
     this.couponsLoaded.pipe(
       filter(loaded => loaded),
+      // Explicitly type the combineLatest output to resolve TS2493 errors
       switchMap(() => combineLatest([this.itemsTotal$, this.allCouponsFromDatabase$, this.currentCustomerId$, this._manualOverrideCouponCode.asObservable()])),
       take(1)
     ).subscribe(([itemsTotal, allCoupons, currentCustomerId, manualOverrideCode]) => {
-      console.log(`[applyBestAvailableCoupon] Evaluating... Current Total: ${itemsTotal}, Customer ID: ${currentCustomerId}, Manual Override: ${manualOverrideCode}`);
 
       const currentAppliedCoupon = this.appliedCouponsSubject.value.length > 0 ? this.appliedCouponsSubject.value[0] : null;
 
       if (itemsTotal === 0) {
         if (currentAppliedCoupon || manualOverrideCode) {
-          console.log('[applyBestAvailableCoupon] Cart is empty, removing applied coupon and clearing manual override.');
           this.appliedCouponsSubject.next([]);
           this._manualOverrideCouponCode.next(null);
           this._suppressAutoApply.next(false);
@@ -572,41 +500,36 @@ export class CartService implements OnDestroy {
         return;
       }
 
-      // --- 1. Handle Manual Override First ---
       if (manualOverrideCode) {
-        const manuallyAppliedCoupon = allCoupons.find(c => c.coupon_code.toUpperCase() === manualOverrideCode.toUpperCase());
+        // Ensure allCoupons is not undefined before calling find
+        const manuallyAppliedCoupon = allCoupons?.find((c: AppliedCoupon) => c.coupon_code?.toUpperCase() === manualOverrideCode.toUpperCase());
 
         if (manuallyAppliedCoupon) {
           const isExpired = manuallyAppliedCoupon.expiry_date && new Date() > new Date(manuallyAppliedCoupon.expiry_date);
           const meetsMinOrder = itemsTotal >= (manuallyAppliedCoupon.min_order_value || 0);
           let isCustomerAllowed = true;
           if (manuallyAppliedCoupon.visibility === 'specific_customer') {
-            const allowedIds: number[] = typeof manuallyAppliedCoupon.allowed_customer_ids === 'string' // <-- CORRECTED
+            const allowedIds: number[] = typeof manuallyAppliedCoupon.allowed_customer_ids === 'string'
               ? manuallyAppliedCoupon.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id))
               : Array.isArray(manuallyAppliedCoupon.allowed_customer_ids) ? manuallyAppliedCoupon.allowed_customer_ids : [];
-            if (currentCustomerId === null || !allowedIds.includes(currentCustomerId)) {
+            if (currentCustomerId === null || !allowedIds.includes(currentCustomerId as number)) { // Type assertion here
               isCustomerAllowed = false;
             }
           }
 
           if (isExpired || !meetsMinOrder || !isCustomerAllowed) {
-            console.warn(`[applyBestAvailableCoupon] Manually applied coupon '${manualOverrideCode}' became invalid. Clearing manual override and suppressing auto-apply.`);
             this.appliedCouponsSubject.next([]);
             this._manualOverrideCouponCode.next(null);
             this._suppressAutoApply.next(true);
             this.saveCouponsToLocalStorage();
           } else {
             if (!currentAppliedCoupon || currentAppliedCoupon.coupon_code !== manuallyAppliedCoupon.coupon_code) {
-              console.log(`[applyBestAvailableCoupon] Re-applying valid manually selected coupon: ${manuallyAppliedCoupon.coupon_code}`);
               this.appliedCouponsSubject.next([manuallyAppliedCoupon]);
               this.saveCouponsToLocalStorage();
-            } else {
-              console.log(`[applyBestAvailableCoupon] Manually selected coupon '${manuallyAppliedCoupon.coupon_code}' is already applied and valid. Keeping it.`);
             }
             return;
           }
         } else {
-          console.warn(`[applyBestAvailableCoupon] Manually applied coupon code '${manualOverrideCode}' not found in database. Clearing manual override and suppressing auto-apply.`);
           this.appliedCouponsSubject.next([]);
           this._manualOverrideCouponCode.next(null);
           this._suppressAutoApply.next(true);
@@ -615,15 +538,14 @@ export class CartService implements OnDestroy {
       }
 
       if (this._suppressAutoApply.value) {
-        console.log('[applyBestAvailableCoupon] Auto-application is currently suppressed after manual override handling. Returning.');
         return;
       }
 
-      // --- 2. Fallback to Best Available Logic ---
       let bestAutoCoupon: AppliedCoupon | null = null;
       let maxDiscount = 0;
 
-      const applicableCoupons = allCoupons.filter(coupon => {
+      // Ensure allCoupons is not undefined before calling filter
+      const applicableCoupons = allCoupons?.filter((coupon: AppliedCoupon) => {
         const isExpired = coupon.expiry_date && new Date() > new Date(coupon.expiry_date);
         if (isExpired) return false;
 
@@ -634,10 +556,10 @@ export class CartService implements OnDestroy {
           if (currentCustomerId === null) return false;
           const allowedIds: number[] = Array.isArray(coupon.allowed_customer_ids) ? coupon.allowed_customer_ids :
             (typeof coupon.allowed_customer_ids === 'string' ? coupon.allowed_customer_ids.split(',').map((id: string) => parseInt(id.trim(), 10)).filter((id: number) => !isNaN(id)) : []);
-          if (!allowedIds.includes(currentCustomerId)) return false;
+          if (!allowedIds.includes(currentCustomerId as number)) return false; // Type assertion here
         }
         return true;
-      });
+      }) || []; // Provide a default empty array if allCoupons is undefined
 
       for (const coupon of applicableCoupons) {
         let currentCouponDiscount = 0;
@@ -654,34 +576,22 @@ export class CartService implements OnDestroy {
         }
       }
 
-      console.log(`[applyBestAvailableCoupon] Found best auto coupon: ${bestAutoCoupon ? bestAutoCoupon.coupon_code : 'None'} with discount: ${maxDiscount.toFixed(2)}`);
-
       if (bestAutoCoupon) {
         if (!currentAppliedCoupon || currentAppliedCoupon.coupon_code !== bestAutoCoupon.coupon_code) {
-          console.log(`[applyBestAvailableCoupon] Applying best auto coupon: ${bestAutoCoupon.coupon_code}`);
           this.appliedCouponsSubject.next([bestAutoCoupon]);
           this.saveCouponsToLocalStorage();
-        } else {
-          console.log(`[applyBestAvailableCoupon] Current auto coupon (${currentAppliedCoupon.coupon_code}) is still the best. No change needed.`);
         }
       } else if (currentAppliedCoupon) {
-        console.log('[applyBestAvailableCoupon] No applicable auto coupons found. Removing currently applied coupon.');
         this.appliedCouponsSubject.next([]);
         this.saveCouponsToLocalStorage();
-      } else {
-        console.log('[applyBestAvailableCoupon] No applicable auto coupons found, and none currently applied. State is clear.');
       }
     });
   }
 
   getOrderDetails(orderId: string): Observable<any> {
-    const url = `http://localhost/ezhuthupizhai/backend/checkout/get_order_details/${orderId}`;
-    console.log(`[CartService] Fetching order details for ID: ${orderId} from URL: ${url}`);
+    const url = `${this.checkoutApiUrl}get_order_details/${orderId}`;
     return this.http.get<any>(url).pipe(
-      tap(response => console.log('[CartService] Order details fetched:', response)),
       catchError(error => {
-        console.error(`[CartService] Error fetching order details for ID ${orderId}:`, error);
-        // You might want to return an Observable of an error object or rethrow
         return of({ success: false, message: 'Failed to load order details.', error: error });
       })
     );

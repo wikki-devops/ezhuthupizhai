@@ -1,0 +1,219 @@
+<div class="page-content bg-light">
+    <div class="dz-bnr-inr bg-secondary dz-bnr-inr-md"
+        style="background-image:url(https://ezhuthupizhai.in/wp-content/uploads/2024/03/Banner_3-scaled-1.jpg);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="dz-bnr-inr-entry text-start">
+                        <h1 class="text-white">Build Your Own Box Gift Box</h1>
+                        <nav aria-label="breadcrumb" class="breadcrumb-row">
+                            <ul class="breadcrumb text-white">
+                                <li class="breadcrumb-item"><a href="/home" class="text-white"> Home</a></li>
+                                <li class="breadcrumb-item text-white">BYOB</li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="content-inner-3 pt-3 mt-4 mb-0">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-70 col-xl-8">
+                    <h3 class="mb-3">Choose Your Books</h3>
+                    <div class="row gx-xl-4 g-3">
+                        <ng-container *ngIf="selectableBooks.length > 0; else noBooks">
+                            <div class="col-6 col-xl-4 col-lg-4 col-md-4 col-sm-6 m-md-b15 m-b30"
+                                *ngFor="let book of selectableBooks">
+                                <div class="shop-card style-1">
+                                    <div class="dz-media">
+                                        <img [src]="book.thumbnail_image_full_url" alt="{{book.name}}">
+                                    </div>
+                                    <div class="dz-info">
+                                        <div class="dz-content">
+                                            <a href="javascript:void(0);" class="title w-100 fs-18">
+                                                {{ book.name }}
+                                            </a>
+                                        </div>
+                                        <div class="meta-content">
+                                            <span class="price">
+                                                &#8377; {{ book.special_price | number:'1.2-2' }} <del>&#8377; {{
+                                                    book.mrp_price | number:'1.2-2' }}</del>
+                                            </span>
+                                        </div>
+                                        <div class="add-cart-button">
+                                            <input type="checkbox" class="form-check-input visually-hidden"
+                                                [id]="'book-selection-' + book.id" [checked]="book.selected"
+                                                (change)="toggleBookSelection(book)">
+
+                                            <label class="btn w-100" [class.btn-primary]="book.selected"
+                                                [class.btn-secondary]="!book.selected"
+                                                [for]="'book-selection-' + book.id">
+                                                {{ book.selected ? 'Selected' : 'Select Book' }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="product-tag" *ngIf="book.mrp_price > book.special_price">
+                                        <span class="badge">{{ ((book.mrp_price - book.special_price) / book.mrp_price *
+                                            100) | number:'1.0-0' }}% off</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                        <ng-template #noBooks>
+                            <div *ngIf="isLoading" class="col-12 text-center text-muted py-5">
+                                Loading books...
+                            </div>
+                            <div *ngIf="!isLoading && selectableBooks.length === 0"
+                                class="col-12 text-center text-muted py-5">
+                                No books available for selection.
+                            </div>
+                        </ng-template>
+                    </div>
+
+                    <h3 class="mb-3 mt-5">Add Other Items</h3>
+                    <div class="row gx-xl-4 g-3">
+                        <ng-container *ngIf="selectableItems.length > 0; else noItems">
+                            <div class="col-6 col-xl-4 col-lg-4 col-md-4 col-sm-6 m-md-b15 m-b30"
+                                *ngFor="let item of selectableItems">
+                                <div class="shop-card style-1">
+                                    <div class="dz-media">
+                                        <img [src]="item.thumbnail_image_full_url" alt="{{item.name}}">
+                                    </div>
+                                    <div class="dz-info">
+                                        <div class="dz-content">
+                                            <a href="javascript:void(0);" class="title w-100 fs-18">
+                                                {{ item.name }}
+                                            </a>
+                                        </div>
+                                        <div class="dz-content">
+                                            <p class="short-description">{{ (item.short_description) | slice:0:100 }}...
+                                            </p>
+                                        </div>
+                                        <div class="meta-content">
+                                            <span class="price">
+                                                &#8377; {{ item.special_price | number:'1.2-2' }}<del>&#8377; {{
+                                                    item.mrp_price | number:'1.2-2' }}</del>
+                                            </span>
+                                        </div>
+                                        <div class="add-cart-button">
+                                            <input type="checkbox" class="form-check-input visually-hidden"
+                                                [id]="'item-selection-' + item.id" [checked]="item.selected"
+                                                (change)="toggleItemSelection(item)">
+
+                                            <label class="btn w-100" [class.btn-primary]="item.selected"
+                                                [class.btn-secondary]="!item.selected"
+                                                [for]="'item-selection-' + item.id"> {{ item.selected ? 'Selected' :
+                                                'Select Item' }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="product-tag" *ngIf="item.mrp_price > item.special_price">
+                                        <span class="badge">{{ ((item.mrp_price - item.special_price) / item.mrp_price *
+                                            100) | number:'1.0-0' }}% off</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                        <ng-template #noItems>
+                            <div *ngIf="isLoading" class="col-12 text-center text-muted py-5">
+                                Loading additional items...
+                            </div>
+                            <div *ngIf="!isLoading && selectableItems.length === 0"
+                                class="col-12 text-center text-muted py-5">
+                                No additional items available for selection.
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+
+                <div class="col-30 col-xl-4">
+                    <div class="cart-detail">
+                        <div class="icon-bx-wraper style-4 m-b30">
+                            <div class="icon-bx">
+                                <img src="assets/images/info.png"
+                                    style="width: 50px;border: 1px solid gray;padding: 10px;border-radius: 99%;"
+                                    alt="/">
+                            </div>
+                            <div class="icon-content">
+                                <h6 class="dz-title text-red">Important Notice</h6>
+                                <p>
+                                    Delivery may be delayed on weekends or peak times.
+                                    Contact support for any queries.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="byob">
+                            <h4 class="mb-3">Your Custom Box</h4>
+                            <ul class="sidebar-cart-list">
+                                <li *ngIf="selectedBooks.length === 0 && selectedItems.length === 0">
+                                    <p class="text-muted text-center">No items selected yet. Start building your box!
+                                    </p>
+                                </li>
+                                <li *ngFor="let book of selectedBooks">
+                                    <div class="cart-widget">
+                                        <div class="dz-media me-3">
+                                            <img [src]="book.thumbnail_image_full_url" alt="{{book.name}}">
+                                        </div>
+                                        <div class="cart-content">
+                                            <h6 class="title"><a href="javascript:void(0);">{{ book.name }}</a></h6>
+                                            <div class="d-flex align-items-center">
+                                                <h6 class="dz-price mb-0">&#8377; {{ book.special_price | number:'1.2-2'
+                                                    }}</h6>
+                                            </div>
+                                        </div>
+                                        <a href="javascript:void(0);" class="dz-close"
+                                            (click)="removeSelectedItem(book, 'book')">
+                                            <i class="ti-close"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li *ngFor="let item of selectedItems">
+                                    <div class="cart-widget">
+                                        <div class="dz-media me-3">
+                                            <img [src]="item.image_url || 'https://placehold.co/500x500'"
+                                                alt="{{item.name}}">
+                                        </div>
+                                        <div class="cart-content">
+                                            <h6 class="title"><a href="javascript:void(0);">{{ item.name }}</a></h6>
+                                            <div class="d-flex align-items-center">
+                                                <h6 class="dz-price mb-0">&#8377; {{ item.special_price | number:'1.2-2'
+                                                    }}</h6>
+                                            </div>
+                                        </div>
+                                        <a href="javascript:void(0);" class="dz-close"
+                                            (click)="removeSelectedItem(item, 'item')">
+                                            <i class="ti-close"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <table>
+                            <tbody>
+                                <tr class="total">
+                                    <td>
+                                        <h6 class="mb-0">Total</h6>
+                                    </td>
+                                    <td class="price">
+                                        &#8377; {{ totalPrice | number:'1.2-2' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-secondary w-100" (click)="addToCart()"
+                            [disabled]="isLoading || (selectedBooks.length === 0 && selectedItems.length === 0)">
+                            {{ isLoading ? 'Adding to Cart...' : 'ADD TO CART' }}
+                        </button>
+
+                        <div *ngIf="boxMessage" class="mt-3 text-center"
+                            [ngClass]="{'alert alert-success': showSuccessMessage, 'alert alert-danger': !showSuccessMessage}">
+                            {{ boxMessage }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

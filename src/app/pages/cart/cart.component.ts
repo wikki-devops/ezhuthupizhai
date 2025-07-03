@@ -5,7 +5,7 @@ import { AppliedCoupon } from 'src/app/models/applied-coupon.model';
 import { Observable, Subscription, of, combineLatest } from 'rxjs';
 import { map, take, switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { UserService, User } from '../../services/user.service';
-import { Router } from '@angular/router'; // IMPORT Router
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart-page',
@@ -14,7 +14,7 @@ import { Router } from '@angular/router'; // IMPORT Router
 })
 export class CartComponent implements OnInit, OnDestroy {
   cartItems$: Observable<CartItem[]>;
-  cartTotal$: Observable<number>; // This is now 'Items Total'
+  cartTotal$: Observable<number>;
   isEpspecialCouponApplied$: Observable<boolean>;
   visibleCouponsWithEligibility$: Observable<({ coupon: AppliedCoupon, isEligible: boolean })[]>;
   currentlyAppliedCoupon$: Observable<AppliedCoupon | null>;
@@ -38,10 +38,8 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     cartService: CartService,
-    // REMOVED: private http: HttpClient,
-    // REMOVED: private razorpayService: RazorpayService,
     private userService: UserService,
-    private router: Router // INJECT Router
+    private router: Router
   ) {
     this.cartService = cartService;
 
@@ -59,7 +57,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
     this.currentlyAppliedCoupon$ = this.cartService.getCurrentlyAppliedCoupon();
 
-    this.visibleCouponsWithEligibility$ = of([]); // Will be properly assigned in ngOnInit
+    this.visibleCouponsWithEligibility$ = of([]);
   }
 
   ngOnInit(): void {
@@ -68,7 +66,6 @@ export class CartComponent implements OnInit, OnDestroy {
       this.userService.currentUser$.subscribe((user: User | null) => {
         this.currentUser = user;
         this.cartService.updateCurrentCustomerId(user ? user.id : null);
-        console.log('Current User Data in CartComponent:', this.currentUser);
       })
     );
 
@@ -130,43 +127,33 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  // New method to handle clicks on the coupon cards
   async onCouponCardClick(couponCode: string, isEligible: boolean): Promise<void> {
     this.resetAlert();
 
     const isCurrentlyApplied = this.cartService.isCouponActive(couponCode);
 
     if (isCurrentlyApplied) {
-      // If the clicked coupon is already applied, remove it
       this.cartService.removeCoupon(couponCode);
       this.setAlert(`Coupon "${couponCode}" has been removed.`, 'warning');
     } else if (isEligible) {
-      // If eligible and not applied, first copy, then attempt to apply
       try {
         const inputElement = document.getElementById('couponCode_' + couponCode) as HTMLInputElement;
         if (inputElement) {
-            await navigator.clipboard.writeText(inputElement.value);
-            this.setAlert(`Coupon "${couponCode}" copied to clipboard!`, 'success');
-        } else {
-            // Fallback for older browsers or if element not found
-            this.setAlert(`Coupon code "${couponCode}" copied (manual copy may be required).`, 'info');
+          await navigator.clipboard.writeText(inputElement.value);
+          this.setAlert(`Coupon "${couponCode}" copied to clipboard!`, 'success');
         }
 
-        // Now, attempt to apply the coupon
-        // Use a short delay if needed, but direct application is usually fine
         const result = this.cartService.applyCouponByCode(couponCode);
         if (result.success) {
-            this.setAlert(result.message, 'success');
+          this.setAlert(result.message, 'success');
         } else {
-            this.setAlert(result.message, 'danger');
+          this.setAlert(result.message, 'danger');
         }
 
       } catch (err) {
-        console.error('Failed to copy text: ', err);
         this.setAlert('Failed to copy coupon code. Please copy manually.', 'danger');
       }
     } else {
-      // If not eligible and not applied, do nothing but show alert (though title provides tooltip)
       this.setAlert('This coupon is not eligible for your current cart.', 'info');
     }
   }
@@ -179,25 +166,25 @@ export class CartComponent implements OnInit, OnDestroy {
     }
 
     this.currentlyAppliedCoupon$.pipe(take(1)).subscribe(currentCoupon => {
-        const newCouponCode = this.manualCouponCode.trim().toUpperCase();
-        const isAlreadyApplied = currentCoupon && currentCoupon.coupon_code && currentCoupon.coupon_code.toUpperCase() === newCouponCode;
+      const newCouponCode = this.manualCouponCode.trim().toUpperCase();
+      const isAlreadyApplied = currentCoupon && currentCoupon.coupon_code && currentCoupon.coupon_code.toUpperCase() === newCouponCode;
 
-        if (isAlreadyApplied) {
-            this.setAlert(`Coupon "${currentCoupon.coupon_code}" is already applied.`, 'info');
-            return;
-        }
+      if (isAlreadyApplied) {
+        this.setAlert(`Coupon "${currentCoupon.coupon_code}" is already applied.`, 'info');
+        return;
+      }
 
-        if (currentCoupon) {
-            this.setAlert(`"${currentCoupon.coupon_code}" is currently applied. Attempting to apply "${newCouponCode}" instead.`, 'info');
-        }
+      if (currentCoupon) {
+        this.setAlert(`"${currentCoupon.coupon_code}" is currently applied. Attempting to apply "${newCouponCode}" instead.`, 'info');
+      }
 
-        const result = this.cartService.applyCouponByCode(this.manualCouponCode.trim());
-        if (result.success) {
-            this.setAlert(result.message, 'success');
-            this.manualCouponCode = '';
-        } else {
-            this.setAlert(result.message, 'danger');
-        }
+      const result = this.cartService.applyCouponByCode(this.manualCouponCode.trim());
+      if (result.success) {
+        this.setAlert(result.message, 'success');
+        this.manualCouponCode = '';
+      } else {
+        this.setAlert(result.message, 'danger');
+      }
     });
   }
 

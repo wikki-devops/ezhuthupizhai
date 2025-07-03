@@ -2,15 +2,14 @@
     <div class="container">
         <div class="row justify-content-md-between align-items-start mb-5">
             <div class="col-lg-5 col-md-12">
-                <div class="section-head style-1 m-b30  wow fadeInUp" data-wow-delay="0.2s">
+                <div class="section-head style-1 m-b30">
                     <div class="left-content">
                         <h2 class="title">Most popular products</h2>
                     </div>
                 </div>
             </div>
             <div class="col-lg-7 col-md-12">
-                <div class="site-filters clearfix style-1 align-items-center wow fadeInUp ms-lg-auto"
-                    data-wow-delay="0.4s">
+                <div class="site-filters clearfix style-1 align-items-center ms-lg-auto">
                     <ul class="filters" data-bs-toggle="buttons">
                         <li class="btn" *ngFor="let category of categories" [class.active]="activeFilter === category">
                             <input type="radio">
@@ -22,9 +21,9 @@
             </div>
         </div>
         <div class="clearfix">
-            <ul id="masonry" class="row g-xl-4 g-3">
-                <li class="card-container col-6 col-xl-4 col-lg-4 col-md-4 col-sm-6 wow fadeInUp"
-                    *ngFor="let product of filteredProducts" [attr.data-wow-delay]="'0.6s'">
+            <div class="row g-xl-4 g-3">
+                <div class="card-container col-6 col-xl-4 col-lg-4 col-md-4 col-sm-6"
+                    *ngFor="let product of filteredProducts">
                     <div class="shop-card">
                         <div class="dz-media">
                             <img [src]="product.thumbnail_image || 'https://placehold.co/500x500'" [alt]="product.name">
@@ -202,8 +201,8 @@
                             </div>
                         </div>
                     </div>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
     </div>
 </section>

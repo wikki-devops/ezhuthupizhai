@@ -17,5 +17,6 @@ export interface Product {
   // These properties will be loaded only for the detailed view (quick view)
   images: ProductImage[];
   reviews: Review[];
+  options?: { [key: string]: any };
   
 }

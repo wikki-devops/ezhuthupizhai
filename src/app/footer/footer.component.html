@@ -28,23 +28,23 @@
                         <div class="dz-social-icon style-1">
                             <ul>
                                 <li class="border">
-                                    <a href="https://www.facebook.com/dexignzone" target="_blank">
+                                    <a href="https://www.instagram.com/ezhuthupizhai_official/" target="_blank">
+                                        <i class="fa-brands fa-instagram"></i>
+                                    </a>
+                                </li>
+                                <li class="border">
+                                    <a href="https://www.facebook.com/ezhuthupizhai/" target="_blank">
                                         <i class="fa-brands fa-facebook-f"></i>
                                     </a>
                                 </li>
                                 <li class="border">
-                                    <a href="https://twitter.com/dexignzones" target="_blank">
+                                    <a href="https://www.youtube.com/channel/UCRuwtbmWkxqdVnoY5PT9RDg/" target="_blank">
+                                        <i class="fa-brands fa-youtube"></i>
+                                    </a>
+                                </li>
+                                <li class="border">
+                                    <a href="" target="_blank">
                                         <i class="fa-brands fa-twitter"></i>
-                                    </a>
-                                </li>
-                                <li class="border">
-                                    <a href="https://www.linkedin.com/showcase/3686700/admin/" target="_blank">
-                                        <i class="fa-brands fa-linkedin"></i>
-                                    </a>
-                                </li>
-                                <li class="border">
-                                    <a href="https://www.instagram.com/dexignzone/" target="_blank">
-                                        <i class="fa-brands fa-instagram"></i>
                                     </a>
                                 </li>
                             </ul>
@@ -53,74 +53,88 @@
                 </div>
                 <div class="col-xl-3 col-md-4 col-sm-6 wow fadeInUp" data-wow-delay="0.2s">
                     <div class="widget widget_post">
-                        <h5 class="footer-title">Recent Posts</h5>
-                        <ul>
-                            <li>
+                        <h5 class="footer-title">Our Products</h5>
+                        <ul *ngIf="footerProducts.length > 0; else noProductsTemplate">
+                            <li *ngFor="let product of footerProducts">
                                 <div class="dz-media">
-                                    <img src="images/shop/product/small/1.png" alt="">
+                                    <img [src]="product.thumbnail_image || 'https://placehold.co/80x80?text=No+Image'"
+                                        [alt]="product.name">
                                 </div>
                                 <div class="dz-content">
-                                    <h6 class="name"><a href="post-standard.html">Cozy Knit Cardigan Sweater</a></h6>
-                                    <span class="time">July 23, 2024</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="dz-media">
-                                    <img src="images/shop/product/small/2.png" alt="">
-                                </div>
-                                <div class="dz-content">
-                                    <h6 class="name"><a href="post-standard.html">Sophisticated Swagger Suit</a></h6>
-                                    <span class="time">July 23, 2024</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="dz-media">
-                                    <img src="images/shop/product/small/3.png" alt="">
-                                </div>
-                                <div class="dz-content">
-                                    <h6 class="name"><a href="post-standard.html">Athletic Mesh Sports Leggings</a></h6>
-                                    <span class="time">July 23, 2024</span>
+                                    <h6 class="name">
+                                        <a [routerLink]="['/products', slugify(product.name)]">
+                                            {{ product.name.length > 30 ? (product.name | slice:0:30) + '...' :
+                                            product.name }}
+                                        </a>
+                                    </h6>
+                                    <span class="price">
+                                        &#8377; {{ product.special_price }}
+                                        <del *ngIf="product.mrp_price !== product.special_price">&#8377;
+                                            {{product.mrp_price}}</del>
+                                    </span>
                                 </div>
                             </li>
                         </ul>
+                        <ng-template #noProductsTemplate>
+                            <p>No products available right now.</p>
+                        </ng-template>
                     </div>
                 </div>
-                <div class="col-xl-2 col-md-4 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.3s">
-                    <div class="widget widget_services">
-                        <h5 class="footer-title">Our Stores</h5>
-                        <ul>
-                            <li><a href="javascript:void(0);">New York</a></li>
-                            <li><a href="javascript:void(0);">London SF</a></li>
-                            <li><a href="javascript:void(0);">Edinburgh</a></li>
-                            <li><a href="javascript:void(0);">Los Angeles</a></li>
-                            <li><a href="javascript:void(0);">Chicago</a></li>
-                            <li><a href="javascript:void(0);">Las Vegas</a></li>
-                        </ul>
+                <div class="col-xl-4 col-md-4 col-sm-6 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="row widget widget_services">
+                        <div class="col-xl-7 col-md-6 col-sm-6">
+                            <h5 class="footer-title">Terms & Policies</h5>
+                            <ul>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Contact</a></li>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Terms & Conditions</a></li>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Privacy Policy</a></li>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Shipping & Delivery</a></li>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Refund Policy</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-xl-5 col-md-6 col-sm-6">
+                            <h5 class="footer-title">Usefull Links</h5>
+                            <ul>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Login</a></li>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Track Order</a></li>
+                                <li><a href=""><i class="fa-solid fa-angles-right me-1"></i>Order History</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="col-xl-2 col-md-4 col-sm-4 col-6 wow fadeInUp" data-wow-delay="0.4s">
-                    <div class="widget widget_services">
-                        <h5 class="footer-title">Useful Links</h5>
-                        <ul>
-                            <li><a href="javascript:void(0);">Privacy Policy</a></li>
-                            <li><a href="javascript:void(0);">Returns</a></li>
-                            <li><a href="javascript:void(0);">Terms & Conditions</a></li>
-                            <li><a href="javascript:void(0);">Contact Us</a></li>
-                            <li><a href="javascript:void(0);">Latest News</a></li>
-                            <li><a href="javascript:void(0);">Our Sitemap</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-xl-2 col-md-4 col-sm-4 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="widget widget_services">
-                        <h5 class="footer-title">Footer Menu</h5>
-                        <ul>
-                            <li><a href="javascript:void(0);">Instagram profile</a></li>
-                            <li><a href="javascript:void(0);">New Collection</a></li>
-                            <li><a href="javascript:void(0);">Woman Dress</a></li>
-                            <li><a href="javascript:void(0);">Contact Us</a></li>
-                            <li><a href="javascript:void(0);">Latest News</a></li>
-                        </ul>
+                <div class="col-xl-2 col-md-4 col-sm-6 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="row dz-post g-0 spno">
+                        <h5 class="footer-title">Recent Post</h5>
+                        <div class="col-lg-6 col-6">
+                            <div class="dz-post-media">
+                                <img src="assets/images/insta/1.jpg" alt="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-6">
+                            <div class="dz-post-media">
+                                <img src="assets/images/insta/2.jpg" alt="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6  col-6">
+                            <div class="dz-post-media">
+                                <img src="assets/images/insta/3.jpg" alt="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-6">
+                            <div class="dz-post-media">
+                                <img src="assets/images/insta/4.jpg" alt="">
+                            </div>
+                        </div>
+                        <!-- <div class="col-lg-6  col-6">
+                            <div class="dz-post-media">
+                                <img src="https://pixio.dexignzone.com/xhtml/images/posts/pic1.png" alt="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-6">
+                            <div class="dz-post-media">
+                                <img src="https://pixio.dexignzone.com/xhtml/images/posts/pic1.png" alt="">
+                            </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

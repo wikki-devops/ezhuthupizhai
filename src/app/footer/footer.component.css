@@ -1,6 +1,24 @@
 .dz-social-icon.style-1 li {
     border-radius: 10px;
 }
-.dz-social-icon li:hover i{
+
+.dz-social-icon li:hover i {
     color: #fff;
+}
+
+del {
+    font-family: var(--font-family-title);
+    font-style: normal;
+    font-weight: var(--headings-font-weight2);
+    color: red;
+    margin-bottom: 0;
+    font-size: 13px;
+}
+
+.dz-post-media {
+    margin: 5px;
+}
+
+footer .footer-title {
+    font-size: 18px;
 }

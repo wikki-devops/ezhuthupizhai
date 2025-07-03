@@ -1,45 +1,42 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Product } from '../models/product.model'; // Import your Product interface
-import { map } from 'rxjs/operators'; // Import map operator
-
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { Product } from '../models/product.model';
+import { map, catchError } from 'rxjs/operators';
+import { Review } from '../models/review.model';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductServiceTsService {
 
-  private apiUrl = 'http://localhost/ezhuthupizhai/backend/api/';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
   getProducts(): Observable<Product[]> {
-    return this.http.get<any>(`${this.apiUrl}products`).pipe(
+    return this.http.get<any>(`${this.apiUrl}api/products`).pipe(
       map(response => {
         if (response.status === 'success' && response.data) {
           return response.data.map((product: any) => ({
             ...product,
-            // CI3 is already formatting prices, just ensure types if needed
             mrp_price: product.mrp_price,
             special_price: product.special_price,
           })) as Product[];
         } else {
-          console.error('API Error: Products not found or status not success', response);
           return [];
         }
       })
     );
   }
 
-  // New method for fetching product details for quick view
   getProductDetail(productId: number): Observable<Product | null> {
-    return this.http.get<any>(`${this.apiUrl}product_detail/${productId}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}api/product_detail/${productId}`).pipe(
       map(response => {
         if (response.status === 'success' && response.data) {
           return response.data as Product;
         } else {
-          console.error('API Error: Product detail not found or status not success', response);
           return null;
         }
       })
@@ -47,12 +44,11 @@ export class ProductServiceTsService {
   }
 
   getCategories(): Observable<string[]> {
-    return this.http.get<any>(`${this.apiUrl}categories`).pipe(
+    return this.http.get<any>(`${this.apiUrl}api/categories`).pipe(
       map(response => {
         if (response.status === 'success' && response.data) {
           return response.data;
         } else {
-          console.error('API Error: Categories not found or status not success', response);
           return [];
         }
       })
@@ -60,6 +56,32 @@ export class ProductServiceTsService {
   }
 
   getProductBySlug(slug: string): Observable<Product | null> {
-    return this.http.get<Product>(`${this.apiUrl}/slug/${slug}`);
+    return this.http.get<Product>(`${this.apiUrl}api/slug/${slug}`);
+  }
+
+  submitProductReview(reviewData: { product_id: number; customer_name: string; rating: number; comment: string }): Observable<Review | null> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    return this.http.post<any>(`${this.apiUrl}review/create`, reviewData, { headers: headers, observe: 'response' }).pipe(
+      map(httpResponse => {
+        const responseBody = httpResponse.body;
+
+        if (httpResponse.status === 201) {
+          if (responseBody && responseBody.data) {
+            return responseBody.data as Review;
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        return of(null);
+      })
+    );
   }
 }

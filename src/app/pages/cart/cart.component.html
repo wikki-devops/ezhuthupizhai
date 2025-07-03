@@ -40,7 +40,21 @@
                                             <img [src]="item.product.thumbnail_image || 'https://placehold.co/100x100'"
                                                 [alt]="item.product.name">
                                         </td>
-                                        <td class="product-item-name">{{ item.product.name }}</td>
+                                        <td class="product-item-name">{{ item.product.name }}
+                                            <div class="pricingtable-wrapper style-1 p-1 mt-0 border-0"
+                                                *ngIf="item.product.options?.['is_byob_box']">
+                                                <div class="pricingtable-inner mb-4">
+                                                    <div class="pricingtable-list">
+                                                        <ul class="byob-item-list pricingtable-features p-0">
+                                                            <li
+                                                                *ngFor="let itemName of item.product.options?.['selected_item_names']">
+                                                                {{ itemName }}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td class="product-item-price">
                                             &#8377;{{ parseFloat(item.product.special_price) | number:'1.2-2' }}
                                         </td>

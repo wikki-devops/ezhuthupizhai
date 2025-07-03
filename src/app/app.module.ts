@@ -13,6 +13,9 @@ import { ProductDetailsComponent } from './pages/product-details/product-details
 import { CartComponent } from './pages/cart/cart.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { OrderConfirmationComponent } from './pages/order-confirmation/order-confirmation.component';
+import { ByobComponent } from './pages/byob/byob.component';
+import { ContactComponent } from './pages/contact/contact.component';
+import { LoginComponent } from './pages/login/login.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +28,10 @@ import { OrderConfirmationComponent } from './pages/order-confirmation/order-con
     ProductDetailsComponent,
     CartComponent,
     CheckoutComponent,
-    OrderConfirmationComponent
+    OrderConfirmationComponent,
+    ByobComponent,
+    ContactComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

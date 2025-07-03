@@ -1,0 +1,72 @@
+<div class="page-content bg-light">
+    <div class="contact-bnr bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="contact-info style-1 text-start text-white">
+                        <h2 class="title wow fadeInUp" data-wow-delay="0.1s">DISCOVER EZHUTHUPIZHAI</h2>
+                        <p class="text wow fadeInUp" data-wow-delay="0.2s">
+                            <span class="text-decoration-underline">
+                                <a href="https://www.google.com/maps/place/EZHUTHUPIZHAI/@13.0090619,80.2513735,17z/data=!3m1!4b1!4m6!3m5!1s0x3a525d448b2e2fbd:0xad80cf358944f9e5!8m2!3d13.0090619!4d80.2513735!16s%2Fg%2F11j0cjw6hj?entry=ttu&g_ep=EgoyMDI1MDYyNi4wIKXMDSoASAFQAw%3D%3D"
+                                    target="_blank">Find us on Google Maps!</a>
+                            </span> <br>
+                            We are located at 78/42, 3rd Main Rd, Gandhi Nagar, Adyar, Chennai, Tamil Nadu 600020,
+                        </p>
+                        <div class="contact-bottom wow fadeInUp" data-wow-delay="0.3s">
+                            <div class="contact-left">
+                                <h3>Reach Us</h3>
+                                <ul>
+                                    <li>+91 99627 00810</li>
+                                    <li>{{email}}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="contact-area1 style-1 m-r20 m-md-r0 wow fadeInUp" data-wow-delay="0.5s">
+                        <form class="dz-form dzForm" method="POST" action="script/contact_smtp.php">
+                            <input type="hidden" class="form-control" name="dzToDo" value="Contact">
+                            <input type="hidden" class="form-control" name="reCaptchaEnable" value="0">
+                            <div class="dzFormMsg"></div>
+                            <label class="form-label">Your Name</label>
+                            <div class="input-group">
+                                <input required type="text" class="form-control" name="dzName">
+                            </div>
+                            <label class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <input required type="text" class="form-control" name="dzEmail">
+                            </div>
+                            <label class="form-label">Phone Number</label>
+                            <div class="input-group">
+                                <input required type="text" class="form-control" name="dzPhoneNumber">
+                            </div>
+                            <label class="form-label">Massage</label>
+                            <div class="input-group m-b30">
+                                <textarea name="dzMessage" rows="4" required class="form-control m-b10"></textarea>
+                            </div>
+                            <div class="input-recaptcha m-b30">
+                                <div class="g-recaptcha" data-sitekey="6LefsVUUAAAAADBPsLZzsNnETChealv6PYGzv3ZN"
+                                    data-callback="verifyRecaptchaCallback"
+                                    data-expired-callback="expiredRecaptchaCallback"></div>
+                                <input class="form-control d-none" style="display:none;" data-recaptcha="true" required
+                                    data-error="Please complete the Captcha">
+                            </div>
+                            <div>
+                                <button name="submit" type="submit" value="submit"
+                                    class="btn w-100 btn-white btnhover">SUBMIT</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content-inner-2 pt-0">
+        <div class="map-iframe map">
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.4175358708785!2d80.2513735!3d13.009061899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a525d448b2e2fbd%3A0xad80cf358944f9e5!2sEZHUTHUPIZHAI!5e0!3m2!1sen!2sin!4v1751371611300!5m2!1sen!2sin"
+                style="border:0; width:100%; min-height:100%; margin-bottom: -8px;" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
-import { User, UserAddress } from '../models/user.model'; // Make sure this path is correct
-import { PlaceOrderPayload, OrderResponse } from '../models/order.model'; // Make sure this path is correct
+import { User, UserAddress } from '../models/user.model';
+import { PlaceOrderPayload, OrderResponse } from '../models/order.model';
 
 interface CustomerDetailsResponse {
   success: boolean;
@@ -18,7 +18,7 @@ interface UserAddressesResponse {
 }
 
 @Injectable({
-  providedIn: 'root' // <<< IMPORTANT: This provides the service globally
+  providedIn: 'root'
 })
 export class CheckoutService {
   private apiUrl = environment.apiUrl;
